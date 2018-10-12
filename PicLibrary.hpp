@@ -7,6 +7,7 @@
 class PicLibrary {
 
   private:
+    //string *picLibrary; // ME : pointer to string filename; allocate space? initialise it to empty?
   // TODO: define internal picture storage 
 
   public:
