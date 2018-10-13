@@ -34,17 +34,25 @@ int main(int argc, char ** argv) {
   picLibrary.print_picturestore();
   //picLibrary.loadpicture("images/test1.jpg", "shouldnotwork");
 
-  picLibrary.rotate(90, "test");
-  picLibrary.display("test"); // ME : NEED TO IMPLEMENT THE KEYSTROKE THING!
+  /*cout << "1here" << endl;
+  picLibrary.rotate(270, "test");
+  cout << "11here" << endl;
+  picLibrary.display("test");*/ // ME : NEED TO IMPLEMENT THE KEYSTROKE THING!
 
-  picLibrary.flipVH('H', "ducks1.jpg");
-  picLibrary.display("ducks1.jpg");
+  /*cout << "1here" << endl;
+  picLibrary.flipVH('H', "test");
+  cout << "2here" << endl;
+  picLibrary.display("test");*/
 
-  picLibrary.flipVH('V', "ducks2.jpg");
-  picLibrary.display("ducks2.jpg");
+  /*cout << "1here" << endl;
+  picLibrary.flipVH('V', "test");
+  cout << "2here" << endl;
+  picLibrary.display("test");*/
 
-  picLibrary.blur("ducks3.jpg");
-  picLibrary.display("ducks3.jpg");
+  /*cout << "1here" << endl;
+  picLibrary.blur("test");
+  cout << "2here" << endl;
+  picLibrary.display("test");*/
 
   // write main IO loop that runs the command-line interpreter interactive shell
 

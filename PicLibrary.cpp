@@ -67,34 +67,47 @@ void PicLibrary::rotate(int angle, string filename) {
   Picture newpic;
   switch (angle) { // ME : IS THERE A WAY TO COMBINE THE STARTING OPERATIONS OF 90 AND 270? YES - PUT THE FOR LOOPS ON THE OUTSIDE AND SWITCH INSIDE IT
     case 90 : {
+      cout << "2here" << endl;
       newpic = Picture(picheight, picwidth);
+      cout << "3here" << endl;
       for (int x = 0; x < picwidth; x++) {
         for (int y = 0; y < picheight; y++) {
           Colour pixel = pic.getpixel(x, y); // ME : DEFINE A MACRO FOR THIS IN THE HEADER OF Picture.hpp?
           newpic.setpixel(newpic.getwidth() - y - 1, x, pixel); // ME : CONSISTENCY WITH DIFFERENT USES OF e.g. picwidth AND pic.getwidth AND newPic.getheight etc.
         }
       }
+      cout << "4here" << endl;
+      break;
     }
     case 180 : {
+      cout << "5here" << endl;
       newpic = Picture(picwidth, picheight);
+      cout << "6here" << endl;
       for (int x = 0; x < picwidth; x++) {
         for (int y = 0; y < picheight; y++) {
           Colour pixel = pic.getpixel(x, y);
-          newpic.setpixel(picwidth - x - 1, picwidth - y - 1, pixel);
+          newpic.setpixel(picwidth - x - 1, picheight - y - 1, pixel);
         }
       }
+      cout << "7here" << endl;
+      break;
     }
     case 270 : {
+      cout << "8here" << endl;
       newpic = Picture(picheight, picwidth);
+      cout << "9here" << endl;
       for (int x = 0; x < picwidth; x++) {
         for (int y = 0; y < picheight; y++) {
           Colour pixel = pic.getpixel(x, y);
           newpic.setpixel(y, newpic.getheight() - x - 1, pixel);
         }
       }
+      cout << "10here" << endl;
+      break;
     }
     default: {
-      // ME : OUTPUT ERROR MESSAGE TO COMMAND LINE; EXCEPTION?
+      cout << "error: can only rotate images by 90, 180 or 270 degrees clockwise." << endl;
+      break;
     }
   }
   internalstorage[filename] = newpic;

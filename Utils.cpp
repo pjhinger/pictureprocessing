@@ -1,6 +1,5 @@
 #include "Utils.hpp"
 
-
 Utils::Utils() {}
 
 Mat Utils::createimage(int width, int height) {
