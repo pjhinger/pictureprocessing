@@ -34,8 +34,17 @@ int main(int argc, char ** argv) {
   picLibrary.print_picturestore();
   //picLibrary.loadpicture("images/test1.jpg", "shouldnotwork");
 
-  picLibrary.grayscale("test");
+  picLibrary.rotate(90, "test");
   picLibrary.display("test"); // ME : NEED TO IMPLEMENT THE KEYSTROKE THING!
+
+  picLibrary.flipVH('H', "ducks1.jpg");
+  picLibrary.display("ducks1.jpg");
+
+  picLibrary.flipVH('V', "ducks2.jpg");
+  picLibrary.display("ducks2.jpg");
+
+  picLibrary.blur("ducks3.jpg");
+  picLibrary.display("ducks3.jpg");
 
   // write main IO loop that runs the command-line interpreter interactive shell
 
