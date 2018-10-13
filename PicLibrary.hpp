@@ -1,19 +1,20 @@
 #ifndef PICLIB_H
 #define PICLIB_H
 
+#include <map>
 #include "Picture.hpp"
 #include "Utils.hpp"
 
 class PicLibrary {
 
   private:
-    //string *picLibrary; // ME : pointer to string filename; allocate space? initialise it to empty?
-  // TODO: define internal picture storage 
+    map<string, Picture> internalstorage;
+    Utils imgio = Utils();
 
   public:
-  // defaiult constructor/deconstructor
-  PicLibrary(){};
-  ~PicLibrary(){};
+  // default constructor/destructor
+  PicLibrary() = default;;
+  ~PicLibrary() = default;;
 
   // command-line interpreter routines
   void print_picturestore();

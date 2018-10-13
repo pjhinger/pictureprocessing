@@ -61,7 +61,6 @@ class Utils{
    */
   Mat copyimage(Mat img);
   
-  
 };
 
 #endif
