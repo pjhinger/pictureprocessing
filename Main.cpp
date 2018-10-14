@@ -21,25 +21,28 @@ string const lookuptable[10] = { "liststore",
 
 int lookup(const string &command) {
   for (int i = 0; i < sizeof(lookuptable) / sizeof(string) ; i++) { // ME : SHORTER EXPRESSION FOR STOPPING CONDITION
-    if (lookuptable[i] == command)
+    if (lookuptable[i] == command) {
       return i;
+    }
   }
   return -1;
 }
 
 string getbasename(string path) { // ME : FIND MORE APPROPRIATE LOCATION FOR THIS METHOD IF POSSIBLE - TESTED: THIS WORKS
   string basename;
-  for (char i : path)
+  for (char i : path) {
     i == '/' ? (basename = "") : (basename += i);
-  return basename;
+  }
+  return basename; // ME : TRY REMOVING THE .JPG POSTFIX FROM IT
 }
 
 vector<string> tokenise(const string &line) {
   vector<string> tokens;
   string token;
   stringstream check1(line);
-  while (getline(check1, token, ' '))
+  while (getline(check1, token, ' ')) {
     tokens.push_back(token);
+  }
   return tokens;
 }
 
@@ -56,8 +59,9 @@ int main(int argc, char ** argv) {
   /* Pre-loads into picLibrary any images from the image filepaths (if any)
    * that the program is invoked with on the command-line. */
   if (argc > 0) {
-    for (int i = 1; i < argc; i++)
+    for (int i = 1; i < argc; i++) {
       picLibrary.loadpicture(argv[i], getbasename(argv[i]));
+    }
   }
 
   string line;
@@ -107,15 +111,17 @@ int main(int argc, char ** argv) {
         break;
       }
       default : { // tokens[0] is not recognised as a supported command
-        if (tokens[0] != "exit")
+        if (tokens[0] != "exit") {
           cerr << "error: " + tokens[0] + " is not a supported command." << endl;
+        }
         break;
       }
     }
-    if (tokens[0] == "exit")
+    if (tokens[0] == "exit") {
       break; // ME : THIS BREAK STATEMENT OUTSIDE THE SWITCH WILL BREAK OUT THE WHILE LOOP (CHECK?)
-    else
+    } else {
       cout << "cpp prompt > ";
+    }
   }
   /*
    * Only once the standard input stream is closed, should your program exit.

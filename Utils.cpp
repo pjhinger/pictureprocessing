@@ -77,8 +77,9 @@ bool Utils::isitjpg(string path) {
 
   string extension;
 
-  for (int i = 0; i < path.size(); i++)
+  for (int i = 0; i < path.size(); i++) {
     path[i] == '.' ? extension = "." : extension += path[i];
+  }
 
   return extension == ".jpg";
 }
