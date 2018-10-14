@@ -2,6 +2,7 @@
 #include "Colour.hpp"
 
 using namespace std; // ME : DO I PUT THE NAMESPACE HERE? - YES BECAUSE I DO ALL MY ERROR MESSAGES HERE AS OPPOSED TO Main.cpp
+// ME " ALMOST ALL OF THESE USE AN IF STATEMENT, COULD I REFACTOR THIS?
 
 void PicLibrary::print_picturestore() {
   for (auto &i : internalstorage) // ME : map<string, Picture>::iterator (USE auto WHEN DECLARING ITERATORS)
@@ -35,11 +36,12 @@ void PicLibrary::savepicture(string filename, string path) { // ME : WHAT TO DO 
 }
 
 void PicLibrary::display(string filename) {
-  char keystroke;
-  if (internalstorage.count(filename) != 0)
-    imgio.displayimage(internalstorage[filename].getimage()); // ME : WHAT ABOUT THE KEYSTROKE CONDITION (KEEP OPEN UNTIL KEYSTROKE ENTERED)
-  else
+  // ME : char keystroke;
+  if (internalstorage.count(filename) != 0) {
+    imgio.displayimage(internalstorage[filename].getimage());
+  } else {
     cerr << "error: could not display image from internal picture storage because " + filename + " doesn't exist." << endl;
+  }
 }
 
 void PicLibrary::invert(string filename) {

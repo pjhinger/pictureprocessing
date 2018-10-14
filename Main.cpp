@@ -49,6 +49,8 @@ int main(int argc, char ** argv) {
   cout << "        The C++ Picture Processing Interpreter        " << endl;
   cout << "------------------------------------------------------" << endl;
 
+  // ME : SHOULD PROBABLY OUTPUT ALL POSSIBLE COMMAND LINE OPTIONS FROM THE SPEC'S BNF
+
   PicLibrary picLibrary = PicLibrary(); // ME : auto OR PicLibrary FOR DECLARING TYPE
 
   /* Pre-loads into picLibrary any images from the image filepaths (if any)
@@ -59,7 +61,7 @@ int main(int argc, char ** argv) {
   }
 
   string line;
-  cout << "prompt > "; // ME : DEFINE A MACRO FOR THIS SINCE IT'S USED IN EVERY SINGLE CASE
+  cout << "cpp prompt > ";
   while (getline(cin, line)) {
     vector<string> tokens = tokenise(line);
     switch (lookup(tokens[0])) { // ME : ADD ASSERTIONS FOR NUMBER OF TOKENS GIVEN IN EACH COMMAND IF TOO FEW/MANY ARGS GIVEN
@@ -113,7 +115,7 @@ int main(int argc, char ** argv) {
     if (tokens[0] == "exit")
       break; // ME : THIS BREAK STATEMENT OUTSIDE THE SWITCH WILL BREAK OUT THE WHILE LOOP (CHECK?)
     else
-      cout << "prompt > ";
+      cout << "cpp prompt > ";
   }
   /*
    * Only once the standard input stream is closed, should your program exit.
@@ -122,30 +124,8 @@ int main(int argc, char ** argv) {
    * user terminated by the Enter key, then execute the specified command and provide a textual display
    * of the results or error messages generated.
    *
-   * Make sure the form of the command prompt INSIDE program is : prmt> cmd arg-1 arg-2 ... arg-n
-   *
-   * Typically, white-space characters are used to delimit the command-line elements and the end of a
-   * particular command-line is delimited by an end-of-line character (most commonly a newline character
-   * \n). This is a widely used (but not universal) convention for command-line interfaces.
-   *
    * */
-
-  // write main IO loop that runs the command-line interpreter interactive shell
 
   return 0;
 
 }
-
-/*
- * REMEMBER:
- * - Can only do stuff if the argc >= 0 (while loop should go inside this if condition
- * - tokeniser (to split each line into a list of tokens that you can then work on
- * - a while loop that will go through each possible transformation
- * - while (getline(cin, line))
- *     tokenise the line into a vector of tokens
- *     use tokens[0] to for the switch (between all options of picLibrary)
- * - getline(cin, line) will ensure that the displayed GUI window closes (but do you
- *   have to hit enter after typing the keystroke for it to work? not what the spec technically says to do)
- *
- * */
-
