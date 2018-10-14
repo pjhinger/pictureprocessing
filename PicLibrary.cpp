@@ -3,6 +3,7 @@
 
 using namespace std; // ME : DO I PUT THE NAMESPACE HERE? - YES BECAUSE I DO ALL MY ERROR MESSAGES HERE AS OPPOSED TO Main.cpp
 // ME " ALMOST ALL OF THESE USE AN IF STATEMENT, COULD I REFACTOR THIS?
+// error: MESSAGES FOR NON-EXISTENT FILENAMES ARE REDUNDANT
 
 void PicLibrary::print_picturestore() {
   for (auto &i : internalstorage) { // ME : map<string, Picture>::iterator (USE auto WHEN DECLARING ITERATORS)

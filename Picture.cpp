@@ -40,10 +40,10 @@ Colour Picture::blurpixel(int x, int y) { // ME : CAN YOU CHANGE THIS TO USE MEM
   int redblur = 0;
   int greenblur = 0;
   int blueblur = 0;
-  if (x > 0 && x < this->getwidth() - 1 && y > 0 && y < this->getheight() - 1) {
+  if (x > 0 && x < getwidth() - 1 && y > 0 && y < getheight() - 1) {
     for (int i = x - 1; i <= x + 1; i++) { // ME : CONSISTENCY OF < OR <= IN FOR-LOOP STOPPING CONDITIONS - CHOOSE ONE
       for (int j = y - 1; j <= y + 1; j++) { // ME ALSO : COULD YOU SEPARATE THIS METHOD (e.g. averagecolour(x, y) MAY ALSO USE FUNCTION POINTERS?)
-        Colour pixel = this->getpixel(i, j);
+        Colour pixel = getpixel(i, j);
         redblur += pixel.getred();
         greenblur += pixel.getgreen();
         blueblur += pixel.getblue();
@@ -54,7 +54,7 @@ Colour Picture::blurpixel(int x, int y) { // ME : CAN YOU CHANGE THIS TO USE MEM
     blueblur /= 9;
     return {redblur, greenblur, blueblur};
   } else { // ME : PIXEL MUST BE A BOUNDARY PIXEL THEREFORE RETURN SAME PIXEL;
-    return this->getpixel(x, y);
+    return getpixel(x, y);
   }
 }
 
