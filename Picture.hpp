@@ -49,13 +49,6 @@ class Picture {
   
   // overwrite Picture image with another image
   void setimage(Mat cpyimg);
-
-  /*
-   * Returns true if image provided is a .jpg file.
-   * .jpg files store the magic numbers (given in hexadecimal) ffd8 at the beginning
-   * and ffd9 at the end
-   */
-  bool isitjpg(string path);
   
  };
 

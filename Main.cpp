@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 
 #include "Colour.hpp"
 #include "Utils.hpp"
@@ -7,7 +8,24 @@
 
 using namespace std;
 
-// TODO: Implement the picture library command-line interpreter
+string const lookuptable[10] = { "liststore",
+                                 "load",
+                                 "unload",
+                                 "save",
+                                 "display",
+                                 "invert",
+                                 "grayscale",
+                                 "rotate",
+                                 "flip",
+                                 "blur" };
+
+int lookup(const string &command) {
+  for (int i = 0; i < sizeof(lookuptable) / sizeof(string) ; i++) { // ME : SHORTER EXPRESSION FOR STOPPING CONDITION
+    if (lookuptable[i] == command)
+      return i;
+  }
+  return -1;
+}
 
 string getbasename(string path) { // ME : FIND MORE APPROPRIATE LOCATION FOR THIS METHOD IF POSSIBLE - TESTED: THIS WORKS
   string basename;
@@ -16,43 +34,101 @@ string getbasename(string path) { // ME : FIND MORE APPROPRIATE LOCATION FOR THI
   return basename;
 }
 
+vector<string> tokenise(const string &line) {
+  vector<string> tokens;
+  string token;
+  stringstream check1(line);
+  while (getline(check1, token, ' '))
+    tokens.push_back(token);
+  return tokens;
+}
+
 int main(int argc, char ** argv) {
 
   cout << "------------------------------------------------------" << endl; 
   cout << "        The C++ Picture Processing Interpreter        " << endl;
   cout << "------------------------------------------------------" << endl;
 
-  auto picLibrary = PicLibrary(); // ME : auto OR PicLibrary FOR DECLARING TYPE
+  PicLibrary picLibrary = PicLibrary(); // ME : auto OR PicLibrary FOR DECLARING TYPE
 
+  /* Pre-loads into picLibrary any images from the image filepaths (if any)
+   * that the program is invoked with on the command-line. */
   if (argc > 0) {
     for (int i = 1; i < argc; i++)
       picLibrary.loadpicture(argv[i], getbasename(argv[i]));
   }
 
-  cout << "testing picture store" << endl;
-  picLibrary.loadpicture("images/test.jpg", "test");
-  picLibrary.print_picturestore();
-  //picLibrary.loadpicture("images/test1.jpg", "shouldnotwork");
-
-  /*cout << "1here" << endl;
-  picLibrary.rotate(270, "test");
-  cout << "11here" << endl;
-  picLibrary.display("test");*/ // ME : NEED TO IMPLEMENT THE KEYSTROKE THING!
-
-  /*cout << "1here" << endl;
-  picLibrary.flipVH('H', "test");
-  cout << "2here" << endl;
-  picLibrary.display("test");*/
-
-  /*cout << "1here" << endl;
-  picLibrary.flipVH('V', "test");
-  cout << "2here" << endl;
-  picLibrary.display("test");*/
-
-  /*cout << "1here" << endl;
-  picLibrary.blur("test");
-  cout << "2here" << endl;
-  picLibrary.display("test");*/
+  string line;
+  cout << "prompt > "; // ME : DEFINE A MACRO FOR THIS SINCE IT'S USED IN EVERY SINGLE CASE
+  while (getline(cin, line)) {
+    vector<string> tokens = tokenise(line);
+    switch (lookup(tokens[0])) { // ME : ADD ASSERTIONS FOR NUMBER OF TOKENS GIVEN IN EACH COMMAND IF TOO FEW/MANY ARGS GIVEN
+      case 0 : { // "liststore"
+        picLibrary.print_picturestore();
+        break;
+      }
+      case 1 : { // "load <file_path> <file_name>"
+        picLibrary.loadpicture(tokens[1], tokens[2]);
+        break;
+      }
+      case 2 : { // "unload <file_name>"
+        picLibrary.unloadpicture(tokens[1]);
+        break;
+      }
+      case 3 : { // "save <file_name> <file_path>"
+        picLibrary.savepicture(tokens[1], tokens[2]);
+        break;
+      }
+      case 4 : { // "display <file_name>"
+        picLibrary.display(tokens[1]); // ME : NEED A WAY TO CLOSE THE GUI WINDOW BY A KEY STROKE
+        break;
+      }
+      case 5 : { // "invert <file_name>"
+        picLibrary.invert(tokens[1]);
+        break;
+      }
+      case 6 : { // "grayscale <file_name>"
+        picLibrary.grayscale(tokens[1]);
+        break;
+      }
+      case 7 : { // "rotate [90|180|270] <file_name>"
+        //int angle = stoi(tokens[1]);
+        picLibrary.rotate(stoi(tokens[1]), tokens[2]);
+        break;
+      }
+      case 8 : { // "flip [H|V] <file_name>"
+        picLibrary.flipVH(tokens[1][0], tokens[2]); // ME : VERY HACKY TO ACCESS 0TH INDEX OF SINGLE CHARACTER STRING, FIND AN APPROPRIATE FUNCTION
+        break;
+      }
+      case 9 : { // "blur <file_name>"
+        picLibrary.blur(tokens[1]);
+        break;
+      }
+      default : { // tokens[0] is not recognised as a supported command
+        if (tokens[0] != "exit")
+          cerr << "error: " + tokens[0] + " is not a supported command." << endl;
+        break;
+      }
+    }
+    if (tokens[0] == "exit")
+      break; // ME : THIS BREAK STATEMENT OUTSIDE THE SWITCH WILL BREAK OUT THE WHILE LOOP (CHECK?)
+    else
+      cout << "prompt > ";
+  }
+  /*
+   * Only once the standard input stream is closed, should your program exit.
+   *
+   * A simple command-line interpreter will display a prompt, accept a command line typed by the
+   * user terminated by the Enter key, then execute the specified command and provide a textual display
+   * of the results or error messages generated.
+   *
+   * Make sure the form of the command prompt INSIDE program is : prmt> cmd arg-1 arg-2 ... arg-n
+   *
+   * Typically, white-space characters are used to delimit the command-line elements and the end of a
+   * particular command-line is delimited by an end-of-line character (most commonly a newline character
+   * \n). This is a widely used (but not universal) convention for command-line interfaces.
+   *
+   * */
 
   // write main IO loop that runs the command-line interpreter interactive shell
 
@@ -60,4 +136,16 @@ int main(int argc, char ** argv) {
 
 }
 
+/*
+ * REMEMBER:
+ * - Can only do stuff if the argc >= 0 (while loop should go inside this if condition
+ * - tokeniser (to split each line into a list of tokens that you can then work on
+ * - a while loop that will go through each possible transformation
+ * - while (getline(cin, line))
+ *     tokenise the line into a vector of tokens
+ *     use tokens[0] to for the switch (between all options of picLibrary)
+ * - getline(cin, line) will ensure that the displayed GUI window closes (but do you
+ *   have to hit enter after typing the keystroke for it to work? not what the spec technically says to do)
+ *
+ * */
 

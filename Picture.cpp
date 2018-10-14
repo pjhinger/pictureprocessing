@@ -1,4 +1,3 @@
-#include <fstream>
 #include "Picture.hpp"
 
 using namespace std;
@@ -70,18 +69,3 @@ Mat Picture::getimage() {
 void Picture::setimage(Mat cpyimg) {
   img = imgio.copyimage(cpyimg);
 }
-
-bool Picture::isitjpg(string path) {
-  uint16_t magicstart = 0xffd8; // ME : CAN I MOVE THESE MAGIC NUMBERS TO THE HEADER USING #define
-  // uint16_t magicend = 0xffd9; // ME : DO THE SAME FOR THE END OF THE FILE
-
-  fstream file(path, ios::in | ios::out | ios::binary);
-
-  uint16_t prefix;
-  // uint16_t postfix;
-
-  file.read(reinterpret_cast<char *>(&prefix), 2);
-
-  return (prefix &= magicstart) == magicstart;
-}
-

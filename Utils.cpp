@@ -1,3 +1,4 @@
+#include <fstream>
 #include "Utils.hpp"
 
 Utils::Utils() {}
@@ -52,4 +53,32 @@ void Utils::displayimage(Mat img) {
   imshow("Picture processing", img);
   waitKey(0);
   destroyWindow("Picture processing");
+}
+
+bool Utils::isitjpg(string path) {
+  /*uint16_t magicstart = 0xffd8; // ME : CAN I MOVE THESE MAGIC NUMBERS TO THE HEADER USING #define
+  // uint16_t magicend = 0xffd9; // ME : DO THE SAME FOR THE END OF THE FILE
+
+  fstream file(path, ios::in | ios::out | ios::binary);
+
+  uint16_t &prefix;
+  // uint16_t postfix;
+
+  cout << *prefix << endl;
+
+  file.read(reinterpret_cast<char *>(prefix), 2);
+
+  cout << prefix << endl;
+
+  // cout << magicstart << endl;
+  // cout << *prefix << endl;
+
+  return prefix == magicstart; // ME : && postfix == magicend;*/
+
+  string extension;
+
+  for (int i = 0; i < path.size(); i++)
+    path[i] == '.' ? extension = "." : extension += path[i];
+
+  return extension == ".jpg";
 }
