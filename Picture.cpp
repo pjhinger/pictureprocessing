@@ -50,7 +50,7 @@ Colour Picture::blurpixel(int x, int y) { // ME : CAN YOU CHANGE THIS TO USE MEM
       }
     }
     redblur /= 9; // ME : ENSURE THIS DOESN'T CAUSE AN INT-TO-FLOAT CONVERSION
-    greenblur /= 9;
+    greenblur /= 9; // ME : DIVIDE BY 9 INSIDE THE RETURN
     blueblur /= 9;
     return {redblur, greenblur, blueblur};
   } else { // ME : PIXEL MUST BE A BOUNDARY PIXEL THEREFORE RETURN SAME PIXEL;

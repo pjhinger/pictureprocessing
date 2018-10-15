@@ -10,7 +10,7 @@ class PicLibrary {
   private:
     map<string, Picture> internalstorage;
     Utils imgio = Utils();
-    mutex piclibmutex;
+    //mutex piclibmutex;
 
   public:
   // default constructor/destructor
@@ -29,7 +29,11 @@ class PicLibrary {
   void grayscale(string filename);
   void rotate(int angle, string filename);
   void flipVH(char plane, string filename);
-  void blur(string filename);
+  void blur(string filename); // ME : DELETE THIS?
+  void rowblur(string filename);
+  void columnblur(string filename);
+  void sectorblur(string filename, int sectorsize);
+  void pixelblur(string filename);
 };
 
 #endif

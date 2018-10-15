@@ -1,3 +1,4 @@
+#include <thread>
 #include "PicLibrary.hpp"
 #include "Colour.hpp"
 
@@ -7,16 +8,16 @@ using namespace std; // ME : DO I PUT THE NAMESPACE HERE? - YES BECAUSE I DO ALL
 
 void PicLibrary::print_picturestore() {
   cout << "internal picture storage:" << endl;
-  piclibmutex.lock();
+  //piclibmutex.lock();
   for (auto &i : internalstorage) { // ME : map<string, Picture>::iterator (USE auto WHEN DECLARING ITERATORS)
     cout << i.first << endl;
   }
-  piclibmutex.unlock();
+  //piclibmutex.unlock();
 }
 
 void PicLibrary::loadpicture(string path, string filename) { // ME : COME BACK TO TEST THIS
   Picture pic = Picture(path);
-  piclibmutex.lock(); // ME : READ ABOUT read-and-write locks IF YOU NEED TO READ AND WRITE
+  //piclibmutex.lock(); // ME : READ ABOUT read-and-write locks IF YOU NEED TO READ AND WRITE
   if (internalstorage.count(filename) == 0) {
     if (imgio.isitjpg(path)) {
       //piclibmutex.lock(); // ME : SHOULD THIS NOT BE ABOVE THE IF CONDITION? BECAUSE WE ARE ACCESSING internalstorage FOR THE CONDITION?
@@ -29,22 +30,22 @@ void PicLibrary::loadpicture(string path, string filename) { // ME : COME BACK T
   } else {
     cerr << "error: could not load image into internal picture storage because " + filename + " already exists." << endl;
   }
-  piclibmutex.unlock(); // ME : DON'T REALLY WANT TO UNLOCK IT AFTER THIS MANY LINES (LOOKS PRETTY SEQUENTIAL STILL)
+  //piclibmutex.unlock(); // ME : DON'T REALLY WANT TO UNLOCK IT AFTER THIS MANY LINES (LOOKS PRETTY SEQUENTIAL STILL)
 }
 
 void PicLibrary::unloadpicture(string filename) {
-  piclibmutex.lock();
+  //piclibmutex.lock();
   if (internalstorage.count(filename) != 0) {
     internalstorage.erase(filename);
     cout << filename + " has been unloaded from the internal picture storage." << endl;
   } else {
     cerr << "error: could not unload image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
-  piclibmutex.unlock();
+  //piclibmutex.unlock();
 }
 
 void PicLibrary::savepicture(string filename, string path) { // ME : WHAT TO DO IF PATH DOESN'T EXIST - DOES savepicture NEED A MUTEX? - YES BECAUSE YOU'RE READING internalstorage USING .count(filename)
-  piclibmutex.lock();
+  //piclibmutex.lock();
   if (internalstorage.count(filename) != 0) {
       Picture pic = internalstorage[filename];
       imgio.saveimage(pic.getimage(), path);
@@ -52,7 +53,7 @@ void PicLibrary::savepicture(string filename, string path) { // ME : WHAT TO DO 
   } else {
     cerr << "error: could not save image to internal picture storage because " + filename + " doesn't exist." << endl;
   }
-  piclibmutex.unlock();
+  //piclibmutex.unlock();
 }
 
 void PicLibrary::display(string filename) { // ME : DOES display NEED A MUTEX? YES BECAUSE YOU'RE READING internalstorage USING .count(filename)
@@ -178,6 +179,7 @@ void PicLibrary::flipVH(char plane, string filename) {
   }
 }
 
+// ME : REMOVE THIS IF YOU'RE USING THE CONCURRENT IMPLEMENTATION
 void PicLibrary::blur(string filename) {
   if (internalstorage.count(filename) != 0) {
     Picture pic = internalstorage[filename];
@@ -190,7 +192,130 @@ void PicLibrary::blur(string filename) {
       }
     }
     internalstorage[filename] = newpic;
-    cout << filename + "has been blurred." << endl;
+    cout << filename + " has been blurred." << endl;
+  } else {
+    cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;
+  }
+}
+
+// ME : FOR ALL BELOW, ASSERT PIC SIZE HAS SAME DIMENSIONS AS NEW PIC
+// ME : ADD THESE METHODS TO PicLibrary.hpp PUBLIC MEMBER FUNCTIONS LIST
+// ME : ORDER THESE PROPERLY
+void rowblurthread(Picture pic, Picture newpic, int row) {
+  for (int i = 0; i < pic.getwidth(); i++) {
+    newpic.setpixel(i, row, pic.blurpixel(i, row));
+  }
+}
+
+void PicLibrary::rowblur(string filename) {
+  if (internalstorage.count(filename) != 0) {
+    Picture pic = internalstorage[filename];
+    int picwidth = pic.getwidth();
+    int picheight = pic.getheight();
+    Picture newpic = Picture(picwidth, picheight);
+    vector<thread> rowthreads;
+    for (int i = 0; i < picheight; i++) {
+      rowthreads.emplace_back(rowblurthread, pic, newpic, i);
+    }
+    for (int i = 0; i < picheight; i++) {
+      rowthreads[i].join();
+    }
+    internalstorage[filename] = newpic;
+    cout << filename + " has been blurred." << endl;
+  } else {
+    cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;
+  }
+
+}
+
+void columnblurthread(Picture pic, Picture newpic, int column) {
+  for (int i = 0; i < pic.getheight(); i++) {
+    newpic.setpixel(column, i, pic.blurpixel(column, i));
+  }
+}
+
+void PicLibrary::columnblur(string filename) {
+  if (internalstorage.count(filename) != 0) {
+    Picture pic = internalstorage[filename];
+    int picwidth = pic.getwidth();
+    int picheight = pic.getheight();
+    Picture newpic = Picture(picwidth, picheight);
+    vector<thread> columnthreads;
+    for (int i = 0; i < picwidth; i++) {
+      columnthreads.emplace_back(columnblurthread, pic, newpic, i);
+    }
+    for (int i = 0; i < picwidth; i++) {
+      columnthreads[i].join();
+    }
+    internalstorage[filename] = newpic;
+    cout << filename + " has been blurred." << endl;
+  } else {
+    cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;
+  }
+}
+
+// ME : ASSERT sectorsize IS OF FORM 2^2n AND n > 0 (OTHERWISE IF n = 0 THEN THIS WILL HAVE THE SAME EFFECT AS pixelblurthread
+void sectorblurthread(Picture pic, Picture newpic, int sectorsize, int xstart, int ystart) {
+  int xend = xstart + (pic.getwidth() - 1) / sectorsize;
+  int yend = ystart + (pic.getheight() - 1) / sectorsize;
+  for (int i = xstart; i < xend; i++) {
+    for (int j = ystart; j < xend; j++) {
+      newpic.setpixel(i, j, pic.blurpixel(i, j));
+    }
+  }
+}
+
+void PicLibrary::sectorblur(string filename, int sectorsize) {
+  if (internalstorage.count(filename) != 0) {
+    Picture pic = internalstorage[filename];
+    int picwidth = pic.getwidth();
+    int picheight = pic.getheight();
+    Picture newpic = Picture(picwidth, picheight);
+    vector<thread> sectorthreads;
+    cout << "1here" << endl;
+    for (int i = 0; i < (sectorsize ^ 2); i++) {
+      for (int j = 0; j < picwidth; j += (picwidth - 1) / sectorsize) {
+        for (int k = 0; k < picheight; k += (picheight - 1) / sectorsize) {
+          cout << "2here" << endl;
+          sectorthreads.emplace_back(sectorblurthread, pic, newpic, sectorsize, j, k);
+          cout << "3here" << endl;
+        }
+      }
+    }
+    cout << "4here" << endl;
+    for (int i = 0; i < (sectorsize ^ 2); i++) {
+      sectorthreads[i].join();
+    }
+    internalstorage[filename] = newpic;
+    cout << filename + " has been blurred." << endl;
+  } else {
+    cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;
+  }
+}
+
+void pixelblurthread(Picture pic, Picture newpic, int x, int y) {
+  newpic.setpixel(x, y, pic.blurpixel(x, y));
+}
+
+void PicLibrary::pixelblur(string filename) {
+  if (internalstorage.count(filename) != 0) {
+    Picture pic = internalstorage[filename];
+    int picwidth = pic.getwidth();
+    int picheight = pic.getheight();
+    Picture newpic = Picture(picwidth, picheight);
+    vector<thread> pixelthreads;
+    for (int i = 0; i < picwidth * picheight; i++) {
+      for (int j = 0; j < picwidth; j++) {
+        for (int k = 0; k < picheight; k++) {
+          pixelthreads.emplace_back(pixelblurthread, pic, newpic, j, k);
+        }
+      }
+    }
+    for (int i = 0; i < picwidth * picheight; i++) {
+      pixelthreads[i].join();
+    }
+    internalstorage[filename] = newpic;
+    cout << filename + " has been blurred." << endl;
   } else {
     cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;
   }

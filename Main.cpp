@@ -56,7 +56,7 @@ int main(int argc, char ** argv) {
 
   // ME : SHOULD PROBABLY OUTPUT ALL POSSIBLE COMMAND LINE OPTIONS FROM THE SPEC'S BNF
 
-  PicLibrary picLibrary = PicLibrary(); // ME : auto OR PicLibrary FOR DECLARING TYPE
+  auto picLibrary = PicLibrary(); // ME : auto OR PicLibrary FOR DECLARING TYPE
 
   /* Pre-loads into picLibrary any images from the image filepaths (if any)
    * that the program is invoked with on the command-line. */
@@ -65,6 +65,9 @@ int main(int argc, char ** argv) {
       picLibrary.loadpicture(argv[i], getbasename(argv[i]));
     }
   }
+
+  /*picLibrary.sectorblur("test.jpg", 2);
+  picLibrary.display("test.jpg");*/
 
   string line;
   cout << "cpp prompt > ";
