@@ -19,8 +19,10 @@ string const lookuptable[10] = { "liststore",
                                  "flip",
                                  "blur" };
 
+/* Used for switch statement's int expression (in which the cases are linked
+ * to each option of the Picture Library) in main() */
 int lookup(const string &command) {
-  for (int i = 0; i < sizeof(lookuptable) / sizeof(string) ; i++) { // ME : SHORTER EXPRESSION FOR STOPPING CONDITION
+  for (int i = 0; i < sizeof(lookuptable) / sizeof(string) ; i++) { // ME : SHORTER EXPRESSION FOR STOPPING CONDITION?
     if (lookuptable[i] == command) {
       return i;
     }
@@ -36,7 +38,7 @@ string getbasename(string path) { // ME : FIND MORE APPROPRIATE LOCATION FOR THI
   return basename; // ME : TRY REMOVING THE .JPG POSTFIX FROM IT
 }
 
-vector<string> tokenise(const string &line) {
+vector<string> tokenise(const string &line) { // ME : CHANGE TO AN ARRAY?
   vector<string> tokens;
   string token;
   stringstream check1(line);
@@ -69,44 +71,44 @@ int main(int argc, char ** argv) {
   while (getline(cin, line)) {
     vector<string> tokens = tokenise(line);
     switch (lookup(tokens[0])) { // ME : ADD ASSERTIONS FOR NUMBER OF TOKENS GIVEN IN EACH COMMAND IF TOO FEW/MANY ARGS GIVEN
-      case 0 : { // "liststore"
+      case 0 : { // liststore
         picLibrary.print_picturestore();
         break;
       }
-      case 1 : { // "load <file_path> <file_name>"
+      case 1 : { // load <file_path> <file_name>
         picLibrary.loadpicture(tokens[1], tokens[2]);
         break;
       }
-      case 2 : { // "unload <file_name>"
+      case 2 : { // unload <file_name>
         picLibrary.unloadpicture(tokens[1]);
         break;
       }
-      case 3 : { // "save <file_name> <file_path>"
+      case 3 : { // save <file_name> <file_path>
         picLibrary.savepicture(tokens[1], tokens[2]);
         break;
       }
-      case 4 : { // "display <file_name>"
+      case 4 : { // display <file_name>
         picLibrary.display(tokens[1]); // ME : NEED A WAY TO CLOSE THE GUI WINDOW BY A KEY STROKE
         break;
       }
-      case 5 : { // "invert <file_name>"
+      case 5 : { // invert <file_name>
         picLibrary.invert(tokens[1]);
         break;
       }
-      case 6 : { // "grayscale <file_name>"
+      case 6 : { // grayscale <file_name>
         picLibrary.grayscale(tokens[1]);
         break;
       }
-      case 7 : { // "rotate [90|180|270] <file_name>"
+      case 7 : { // rotate [90|180|270] <file_name>
         //int angle = stoi(tokens[1]);
         picLibrary.rotate(stoi(tokens[1]), tokens[2]);
         break;
       }
-      case 8 : { // "flip [H|V] <file_name>"
+      case 8 : { // flip [H|V] <file_name>
         picLibrary.flipVH(tokens[1][0], tokens[2]); // ME : VERY HACKY TO ACCESS 0TH INDEX OF SINGLE CHARACTER STRING, FIND AN APPROPRIATE FUNCTION
         break;
       }
-      case 9 : { // "blur <file_name>"
+      case 9 : { // blur <file_name>
         picLibrary.blur(tokens[1]);
         break;
       }
@@ -118,7 +120,7 @@ int main(int argc, char ** argv) {
       }
     }
     if (tokens[0] == "exit") {
-      break; // ME : THIS BREAK STATEMENT OUTSIDE THE SWITCH WILL BREAK OUT THE WHILE LOOP (CHECK?)
+      break;
     } else {
       cout << "cpp prompt > ";
     }
@@ -129,6 +131,9 @@ int main(int argc, char ** argv) {
    * A simple command-line interpreter will display a prompt, accept a command line typed by the
    * user terminated by the Enter key, then execute the specified command and provide a textual display
    * of the results or error messages generated.
+   *
+   * exit command should stop the command-line interpreter, wait for any outstanding worker threads to
+   * complete and then free all of the resources used by this program before terminating with a successful exit code of 0.
    *
    * */
 

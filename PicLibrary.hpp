@@ -10,6 +10,7 @@ class PicLibrary {
   private:
     map<string, Picture> internalstorage;
     Utils imgio = Utils();
+    mutex piclibmutex;
 
   public:
   // default constructor/destructor
