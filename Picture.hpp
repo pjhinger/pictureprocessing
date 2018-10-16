@@ -13,6 +13,7 @@ class Picture {
     // opencv representation of an image
     Mat img;
     Utils imgio;
+    //mutex picmutex;
 
   public:
       

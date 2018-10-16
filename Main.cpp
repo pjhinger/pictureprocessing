@@ -8,7 +8,7 @@
 
 using namespace std;
 
-string const lookuptable[10] = { "liststore",
+string const lookuptable[11] = { "liststore",
                                  "load",
                                  "unload",
                                  "save",
@@ -17,7 +17,8 @@ string const lookuptable[10] = { "liststore",
                                  "grayscale",
                                  "rotate",
                                  "flip",
-                                 "blur" };
+                                 "blur",
+                                 "view" };
 
 /* Used for switch statement's int expression (in which the cases are linked
  * to each option of the Picture Library) in main() */
@@ -55,6 +56,7 @@ int main(int argc, char ** argv) {
   cout << "------------------------------------------------------" << endl;
 
   // ME : SHOULD PROBABLY OUTPUT ALL POSSIBLE COMMAND LINE OPTIONS FROM THE SPEC'S BNF
+  // ME : REMEMBER TO FREE ANYTHING THAT NEEDED MEMORY FROM HEAP!
 
   auto picLibrary = PicLibrary(); // ME : auto OR PicLibrary FOR DECLARING TYPE
 
@@ -66,8 +68,7 @@ int main(int argc, char ** argv) {
     }
   }
 
-  /*picLibrary.sectorblur("test.jpg", 2);
-  picLibrary.display("test.jpg");*/
+  cout << "type \"view\" to see a list of options." << endl;
 
   string line;
   cout << "cpp prompt > ";
@@ -92,6 +93,10 @@ int main(int argc, char ** argv) {
       }
       case 4 : { // display <file_name>
         picLibrary.display(tokens[1]); // ME : NEED A WAY TO CLOSE THE GUI WINDOW BY A KEY STROKE
+        string anything;
+        do {
+          getline(cin, anything);
+        } while (getline(cin, anything));
         break;
       }
       case 5 : { // invert <file_name>
@@ -115,6 +120,25 @@ int main(int argc, char ** argv) {
         picLibrary.blur(tokens[1]);
         break;
       }
+      case 10 : {
+        cout << endl;
+        cout << "picture library options:" << endl;
+        cout << "* liststore" << endl;
+        cout << "* load <file_path> <file_name>" << endl;
+        cout << "* unload <file_name>" << endl;
+        cout << "* save <file_name> <file_path>" << endl;
+        cout << "* exit" << endl;
+        cout << "* display <file_name>" << endl;
+        cout << endl;
+        cout << "picture transformation options:" << endl;
+        cout << "* invert <file_name>" << endl;
+        cout << "* grayscale <file_name>" << endl;
+        cout << "* rotate [90|180|270] <file_name>" << endl;
+        cout << "* flip [H|V] <file_name>" << endl;
+        cout << "* blur <file_name>" << endl;
+        cout << endl;
+        break;
+      }
       default : { // tokens[0] is not recognised as a supported command
         if (tokens[0] != "exit") {
           cerr << "error: " + tokens[0] + " is not a supported command." << endl;
@@ -128,6 +152,7 @@ int main(int argc, char ** argv) {
       cout << "cpp prompt > ";
     }
   }
+
   /*
    * Only once the standard input stream is closed, should your program exit.
    *
@@ -141,5 +166,53 @@ int main(int argc, char ** argv) {
    * */
 
   return 0;
+
+  /* CODE USED INSIDE main() IN Main.cpp FOR BLUR EXPERIMENT */
+
+  /*picLibrary.loadpicture("images/joker.jpg", "blurjoker");
+  picLibrary.blur("blurjoker");*/
+
+  /*picLibrary.loadpicture("images/joker.jpg", "rowblurjoker");
+  picLibrary.rowblur("rowblurjoker");*/
+
+  /*picLibrary.loadpicture("images/joker.jpg", "columnblurjoker");
+  picLibrary.columnblur("columnblurjoker");*/
+
+  /*picLibrary.loadpicture("images/joker.jpg", "pixelblurjoker");
+  picLibrary.pixelblur("pixelblurjoker");*/
+
+  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker1");
+  picLibrary.sectorblur("sectorblurjoker1", 1);*/
+
+  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker2");
+  picLibrary.sectorblur("sectorblurjoker2", 2);*/
+
+  // ME : SEGMENTATION FAULT
+  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker3");
+  picLibrary.sectorblur("sectorblurjoker3", 3);*/
+
+  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker4");
+  picLibrary.sectorblur("sectorblurjoker4", 4);*/
+
+  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker5");
+  picLibrary.sectorblur("sectorblurjoker5", 5);*/
+
+  // ME : SEGMENTATION FAULT
+  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker6");
+  picLibrary.sectorblur("sectorblurjoker6", 6);*/
+
+  // ME : SEGMENTATION FAULT
+  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker7");
+  picLibrary.sectorblur("sectorblurjoker7", 7);*/
+
+  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker8");
+  picLibrary.sectorblur("sectorblurjoker8", 8);*/
+
+  // ME : SEGMENTATION FAULT
+  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker9");
+  picLibrary.sectorblur("sectorblurjoker9", 9);*/
+
+  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker10");
+  picLibrary.sectorblur("sectorblurjoker10", 10);*/
 
 }
