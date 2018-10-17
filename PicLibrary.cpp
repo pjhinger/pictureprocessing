@@ -6,6 +6,7 @@ using namespace std;
 using namespace chrono;
 // ME : ALMOST ALL OF THESE USE AN IF STATEMENT, COULD I REFACTOR THIS?
 // error: MESSAGES FOR NON-EXISTENT FILENAMES ARE REDUNDANT
+// ME : FIGURE OUT HOW TO LOCK EACH ELEMENT OF A MAP
 
 void PicLibrary::print_picturestore() {
   cout << "internal picture storage:" << endl;

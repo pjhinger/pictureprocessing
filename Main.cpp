@@ -88,7 +88,9 @@ int main(int argc, char ** argv) {
         break;
       }
       case 1 : { // load <file_path> <file_name>
-        workerthreads.emplace_back(&PicLibrary::loadpicture, &picLibrary, tokens[1], tokens[2]);
+        // workerthreads.emplace_back(&PicLibrary::loadpicture, &picLibrary, tokens[1], tokens[2]);
+        thread t = thread(&PicLibrary::loadpicture, &picLibrary, tokens[1], tokens[2]);
+        t.join();
         // picLibrary.loadpicture(tokens[1], tokens[2]);
         break;
       }
@@ -98,7 +100,9 @@ int main(int argc, char ** argv) {
         break;
       }
       case 3 : { // save <file_name> <file_path>
-        workerthreads.emplace_back(&PicLibrary::savepicture, &picLibrary, tokens[1], tokens[2]);
+        //workerthreads.emplace_back(&PicLibrary::savepicture, &picLibrary, tokens[1], tokens[2]);
+        thread t = thread(&PicLibrary::savepicture, &picLibrary, tokens[1], tokens[2]);
+        t.join();
         // picLibrary.savepicture(tokens[1], tokens[2]);
         break;
       }
@@ -178,6 +182,8 @@ int main(int argc, char ** argv) {
    *
    * */
 
+  // join threads in order (from head)
+  // for save and load - join them immediately
   for (auto &t : workerthreads) {
       t.join();
   }

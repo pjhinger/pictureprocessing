@@ -84,8 +84,8 @@ class Picture {
   }
 
   // locks and unlocks picmutex for each Picture object
-  void lockmutex();//=============================
-  void unlockmutex();//===========================
+  void lockmutex();
+  void unlockmutex();
 
   // determine the dimensions of the underlying image
   int getwidth();
