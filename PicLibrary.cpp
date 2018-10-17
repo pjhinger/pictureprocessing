@@ -29,7 +29,6 @@ void PicLibrary::loadpicture(string path, string filename) { // ME : COME BACK T
       //piclibmutex.lock(); // ME : SHOULD THIS NOT BE ABOVE THE IF CONDITION? BECAUSE WE ARE ACCESSING internalstorage FOR THE CONDITION?
       internalstorage.insert(pair<string, Picture>(filename, pic));
       //piclibmutex.unlock(); // ME : IF I LOCK THE MUTEX OUTSIDE IF CONDITION THEN MUST UNLOCK IT OUTSIDE TOO?
-      cout << filename + " has been loaded into the internal picture storage." << endl;
     } else {
       cerr << "error: could not load image into internal picture storage because the path " + path +
               " does not point to a .jpg file." << endl;
@@ -45,7 +44,6 @@ void PicLibrary::unloadpicture(string filename) {
   //piclibmutex.lock();
   if (internalstorage.count(filename) != 0) {
     internalstorage.erase(filename);
-    cout << filename + " has been unloaded from the internal picture storage." << endl;
   } else {
     cerr << "error: could not unload image from internal picture storage because " + filename + " doesn't exist."
          << endl;
@@ -59,7 +57,6 @@ void PicLibrary::savepicture(string filename,
   if (internalstorage.count(filename) != 0) {
     Picture pic = internalstorage[filename];
     imgio.saveimage(pic.getimage(), path);
-    cout << filename + " has been saved to the path " + path + "." << endl;
   } else {
     cerr << "error: could not save image to internal picture storage because " + filename + " doesn't exist." << endl;
   }
@@ -90,7 +87,6 @@ void PicLibrary::invert(
       }
     }
     pic.unlockmutex();
-    cout << filename + " has been inverted." << endl;
   } else {
     cerr << "error: could not invert image from internal picture storage because " + filename + " doesn't exist."
          << endl;
@@ -109,7 +105,6 @@ void PicLibrary::grayscale(string filename) {
       }
     }
     pic.unlockmutex();
-    cout << filename + " has been grayscaled." << endl;
   } else {
     cerr << "error: could not grayscale image from internal picture storage because " + filename + " doesn't exist."
          << endl;
@@ -162,7 +157,6 @@ void PicLibrary::rotate(int angle, string filename) {
     }
     pic.unlockmutex();
     internalstorage[filename] = newpic; // ME : NEED LOCK INTERNAL STORAGE AT THIS INDEX
-    cout << filename + " has been rotated by " << angle << " degrees." << endl;
   } else {
     cerr << "error: could not rotate image from internal picture storage because " + filename + " doesn't exist."
          << endl;
@@ -194,12 +188,6 @@ void PicLibrary::flipVH(char plane, string filename) {
     }
     pic.unlockmutex();
     internalstorage[filename] = newpic; // ME : NEED LOCK INTERNAL STORAGE AT THIS INDEX
-    cout << filename + " has been flipped ";
-    if (plane == 'H') {
-      cout << "horizontally." << endl;
-    } else if (plane == 'V') {
-      cout << "vertically." << endl;
-    }
   } else {
     cerr << "error: could not flip image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
@@ -214,19 +202,18 @@ void PicLibrary::blur(string filename) {
     int picheight = pic.getheight();
     Picture newpic = Picture(picwidth, picheight);
 
-    auto blurstart = high_resolution_clock::now();
+    /*auto blurstart = high_resolution_clock::now();*/
     for (int x = 0; x < picwidth; x++) {
       for (int y = 0; y < picheight; y++) {
         newpic.setpixel(x, y, pic.blurpixel(x, y));
       }
     }
-    auto blurfinish = high_resolution_clock::now(); // ME : ONLY CHECK THIS WHEN ROW BLUR IS ACTUALLY DONE
+    /* auto blurfinish = high_resolution_clock::now(); // ME : ONLY CHECK THIS WHEN ROW BLUR IS ACTUALLY DONE
     auto sequentialblurduration = duration_cast<milliseconds>(blurfinish - blurstart);
-    cout << filename + ": sequential blur's execution time = " << sequentialblurduration.count() << " milliseconds." << endl;
+    cout << filename + ": sequential blur's execution time = " << sequentialblurduration.count() << " milliseconds." << endl;*/
 
     pic.unlockmutex();
     internalstorage[filename] = newpic; // ME : NEED LOCK INTERNAL STORAGE AT THIS INDEX
-    cout << filename + " has been blurred." << endl;
   } else {
     cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
@@ -271,19 +258,18 @@ void PicLibrary::rowblur(string filename) {
     Picture newpic = Picture(picwidth, picheight);
     vector<thread> rowthreads;
 
-    auto blurstart = high_resolution_clock::now();
+    /*auto blurstart = high_resolution_clock::now();*/
     for (int i = 0; i < picheight; i++) {
       rowthreads.emplace_back(rowblurthread, pic, newpic, i);
     }
     for (int i = 0; i < picheight; i++) {
       rowthreads[i].join();
     }
-    auto blurfinish = high_resolution_clock::now(); // ME : ONLY CHECK THIS WHEN ROW BLUR IS ACTUALLY DONE
+    /*auto blurfinish = high_resolution_clock::now(); // ME : ONLY CHECK THIS WHEN ROW BLUR IS ACTUALLY DONE
     auto rowblurduration = duration_cast<milliseconds>(blurfinish - blurstart);
-    cout << filename + ": row blur's execution time = " << rowblurduration.count() << " milliseconds." << endl;
+    cout << filename + ": row blur's execution time = " << rowblurduration.count() << " milliseconds." << endl;*/
 
     internalstorage[filename] = newpic;
-    cout << filename + " has been blurred." << endl;
   } else {
     cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
@@ -304,19 +290,18 @@ void PicLibrary::columnblur(string filename) {
     Picture newpic = Picture(picwidth, picheight);
     vector<thread> columnthreads;
 
-    auto blurstart = high_resolution_clock::now();
+    /*auto blurstart = high_resolution_clock::now();*/
     for (int i = 0; i < picwidth; i++) {
       columnthreads.emplace_back(columnblurthread, pic, newpic, i);
     }
     for (int i = 0; i < picwidth; i++) {
       columnthreads[i].join();
     }
-    auto blurfinish = high_resolution_clock::now();
+    /*auto blurfinish = high_resolution_clock::now();
     auto columnblurduration = duration_cast<milliseconds>(blurfinish - blurstart);
-    cout << filename + ": column blur's execution time = " << columnblurduration.count() << " milliseconds." << endl;
+    cout << filename + ": column blur's execution time = " << columnblurduration.count() << " milliseconds." << endl;*/
 
     internalstorage[filename] = newpic;
-    cout << filename + " has been blurred." << endl;
   } else {
     cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
@@ -341,7 +326,7 @@ void PicLibrary::sectorblur(string filename, int sectorsize) {
     Picture newpic = Picture(picwidth, picheight);
     vector<thread> sectorthreads;
 
-    auto blurstart = high_resolution_clock::now();
+    /*auto blurstart = high_resolution_clock::now();*/
     int threadcount = 0;
     for (int j = 0; j < picwidth; j += (picwidth) / sectorsize) {
       for (int k = 0; k < picheight; k += (picheight) / sectorsize) {
@@ -352,12 +337,11 @@ void PicLibrary::sectorblur(string filename, int sectorsize) {
     for (int i = 0; i < threadcount; i++) {
       sectorthreads[i].join();
     }
-    auto blurfinish = high_resolution_clock::now();
+    /*auto blurfinish = high_resolution_clock::now();
     auto sectorblurduration = duration_cast<milliseconds>(blurfinish - blurstart);
-    cout << filename + ": sector blur's execution time = " << sectorblurduration.count() << " milliseconds." << endl;
+    cout << filename + ": sector blur's execution time = " << sectorblurduration.count() << " milliseconds." << endl;*/
 
     internalstorage[filename] = newpic;
-    cout << filename + " has been blurred." << endl;
   } else {
     cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
@@ -376,7 +360,7 @@ void PicLibrary::pixelblur(string filename) {
     vector<thread> pixelthreads;
     int threadcount = 0;
 
-    auto blurstart = high_resolution_clock::now();
+    /*auto blurstart = high_resolution_clock::now();*/
     for (int j = 0; j < picwidth; j++) {
       for (int k = 0; k < picheight; k++) {
         pixelthreads.emplace_back(pixelblurthread, pic, newpic, j, k);
@@ -386,12 +370,11 @@ void PicLibrary::pixelblur(string filename) {
     for (int i = 0; i < threadcount; i++) {
       pixelthreads[i].join();
     }
-    auto blurfinish = high_resolution_clock::now();
+    /*auto blurfinish = high_resolution_clock::now();
     auto pixelblurduration = duration_cast<milliseconds>(blurfinish - blurstart);
-    cout << filename + ": pixel blur's execution time = " << pixelblurduration.count() << " milliseconds." << endl;
+    cout << filename + ": pixel blur's execution time = " << pixelblurduration.count() << " milliseconds." << endl;*/
 
     internalstorage[filename] = newpic;
-    cout << filename + " has been blurred." << endl;
   } else {
     cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
