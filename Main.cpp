@@ -160,9 +160,6 @@ int main(int argc, char ** argv) {
       }
     }
     if (tokens[0] == "exit") {
-      for (auto &i : workerthreads) {
-          i.join();
-      }
       break;
     } else {
       cout << "cpp prompt > ";
@@ -180,6 +177,10 @@ int main(int argc, char ** argv) {
    * complete and then free all of the resources used by this program before terminating with a successful exit code of 0.
    *
    * */
+
+  for (auto &t : workerthreads) {
+      t.join();
+  }
 
   return 0;
 
