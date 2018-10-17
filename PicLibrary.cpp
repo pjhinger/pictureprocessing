@@ -81,12 +81,14 @@ void PicLibrary::invert(
       string filename) { // ME : DO ALL THE PICTURE TRANSFORMATIONS NEED MUTEXES? REFER TO QUESTIONS IN NOTES APP ON LAPTOP
   if (internalstorage.count(filename) != 0) {
     Picture pic = internalstorage[filename];
+    pic.lockmutex();
     for (int i = 0; i < pic.getwidth(); i++) {
       for (int j = 0; j < pic.getheight(); j++) {
         Colour pixel = pic.getpixel(i, j); // ME : USE auto OR typeOfVariable CONSISTENTLY? CHOOSE WHEN AUTO APPROPRIATE?
         pic.setpixel(i, j, Colour(255 - pixel.getred(), 255 - pixel.getgreen(), 255 - pixel.getblue()));
       }
     }
+    pic.unlockmutex();
     cout << filename + " has been inverted." << endl;
   } else {
     cerr << "error: could not invert image from internal picture storage because " + filename + " doesn't exist."
@@ -97,6 +99,7 @@ void PicLibrary::invert(
 void PicLibrary::grayscale(string filename) {
   if (internalstorage.count(filename) != 0) {
     Picture pic = internalstorage[filename];
+    pic.lockmutex();
     for (int i = 0; i < pic.getwidth(); i++) {
       for (int j = 0; j < pic.getheight(); j++) {
         Colour pixel = pic.getpixel(i, j);
@@ -104,6 +107,7 @@ void PicLibrary::grayscale(string filename) {
         pic.setpixel(i, j, Colour(avg, avg, avg));
       }
     }
+    pic.unlockmutex();
     cout << filename + " has been grayscaled." << endl;
   } else {
     cerr << "error: could not grayscale image from internal picture storage because " + filename + " doesn't exist."
@@ -115,9 +119,10 @@ void PicLibrary::grayscale(string filename) {
 void PicLibrary::rotate(int angle, string filename) {
   if (internalstorage.count(filename) != 0) {
     Picture pic = internalstorage[filename];
+    Picture newpic;
+    pic.lockmutex();
     int picwidth = pic.getwidth();
     int picheight = pic.getheight();
-    Picture newpic;
     switch (angle) { // ME : IS THERE A WAY TO COMBINE THE STARTING OPERATIONS OF 90 AND 270? YES - PUT THE FOR LOOPS ON THE OUTSIDE AND SWITCH INSIDE IT
       case 90 : {
         newpic = Picture(picheight, picwidth);
@@ -154,7 +159,8 @@ void PicLibrary::rotate(int angle, string filename) {
         break;
       }
     }
-    internalstorage[filename] = newpic;
+    pic.unlockmutex();
+    internalstorage[filename] = newpic; // ME : NEED LOCK INTERNAL STORAGE AT THIS INDEX
     cout << filename + " has been rotated by " << angle << " degrees." << endl;
   } else {
     cerr << "error: could not rotate image from internal picture storage because " + filename + " doesn't exist."
@@ -165,6 +171,7 @@ void PicLibrary::rotate(int angle, string filename) {
 void PicLibrary::flipVH(char plane, string filename) {
   if (internalstorage.count(filename) != 0) {
     Picture pic = internalstorage[filename];
+    pic.lockmutex();
     int picwidth = pic.getwidth();
     int picheight = pic.getheight();
     Picture newpic = Picture(picwidth, picheight);
@@ -184,7 +191,8 @@ void PicLibrary::flipVH(char plane, string filename) {
     } else {
       cerr << "error: can only flip images vertically (V) or horizontally (H)." << endl;
     }
-    internalstorage[filename] = newpic;
+    pic.unlockmutex();
+    internalstorage[filename] = newpic; // ME : NEED LOCK INTERNAL STORAGE AT THIS INDEX
     cout << filename + " has been flipped ";
     if (plane == 'H') {
       cout << "horizontally." << endl;
@@ -200,6 +208,7 @@ void PicLibrary::flipVH(char plane, string filename) {
 void PicLibrary::blur(string filename) {
   if (internalstorage.count(filename) != 0) {
     Picture pic = internalstorage[filename];
+    pic.lockmutex();
     int picwidth = pic.getwidth();
     int picheight = pic.getheight();
     Picture newpic = Picture(picwidth, picheight);
@@ -214,7 +223,8 @@ void PicLibrary::blur(string filename) {
     auto sequentialblurduration = duration_cast<milliseconds>(blurfinish - blurstart);
     cout << filename + ": sequential blur's execution time = " << sequentialblurduration.count() << " milliseconds." << endl;
 
-    internalstorage[filename] = newpic;
+    pic.unlockmutex();
+    internalstorage[filename] = newpic; // ME : NEED LOCK INTERNAL STORAGE AT THIS INDEX
     cout << filename + " has been blurred." << endl;
   } else {
     cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;

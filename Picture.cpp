@@ -13,6 +13,13 @@ Picture::Picture(int width, int height) {
 
 Picture::Picture() {}
 
+void Picture::lockmutex() {
+  picmutex.lock();
+}
+void Picture::unlockmutex() {
+  picmutex.unlock();
+}
+
 int Picture::getwidth() {
   return img.size().width;
 }
