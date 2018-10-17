@@ -1,6 +1,7 @@
 #ifndef PICTURE_H
 #define PICTURE_H
 
+#include <mutex>
 #include "Colour.hpp"
 #include "Utils.hpp"
 
@@ -13,7 +14,31 @@ class Picture {
     // opencv representation of an image
     Mat img;
     Utils imgio;
-    //mutex picmutex;
+    /*
+     * may need to redesign your picLibrary's internal storage to allow concurrency?
+     * - singly-linked list of nodes, so then you only need to lock onto what will be
+     * prev and next
+     *
+     * advanced concurrency 01 - 120.2
+     * class node (private members will contain {Picture pic (item), string filename (key),
+     * Node next}
+     * then singly-linked list is a chain with a head and tail - look at diagram in
+     * ppt
+     * public member functions: bool add(Node item) - loadpicture,
+     * bool remove(Node item) - unload picture,
+     * bool contains(Node item) - checks if its there - (do i need this?)
+     * nodes need to be ordered by lexicographical order! (ordered insertion needed)
+     * - head starts with a, tail ends with z
+     * protected node<E> head, tail;
+     * public constructor() {
+     *  head = null (to be initialised?)
+     *  tail = null (to be initialised?) - use dummy nodes at the beginning
+     *  head.setNext(tail);
+     * }
+     *
+     *
+     *
+     */
 
   public:
       

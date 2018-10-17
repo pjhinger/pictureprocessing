@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <thread>
 
 #include "Colour.hpp"
 #include "Utils.hpp"
@@ -68,6 +69,12 @@ int main(int argc, char ** argv) {
     }
   }
 
+  vector<thread> workerthreads;
+
+  // ME : internalstorage[filename] IS NOT A THREAD-SAFE FUNCTION FOR <map> SO USE SOMETHING ELSE IN EACH INSTANCE THIS IS USED
+  // ME : MAY NEED TO LOCK cout BECAUSE cpp prompt > IS BEING OUTPUT IS GETTING PRINTED ON THE SAME LINE
+  // ME : MAYBE DELETE THE CONFIRMATION MESSAGES?
+  // ME : COMMENT OUT EXECUTION TIME PRINTS INSIDE ALL BLUR METHODS
   cout << "type \"view\" to see a list of options." << endl;
 
   string line;
@@ -76,48 +83,54 @@ int main(int argc, char ** argv) {
     vector<string> tokens = tokenise(line);
     switch (lookup(tokens[0])) { // ME : ADD ASSERTIONS FOR NUMBER OF TOKENS GIVEN IN EACH COMMAND IF TOO FEW/MANY ARGS GIVEN
       case 0 : { // liststore
-        picLibrary.print_picturestore();
+        workerthreads.emplace_back(&PicLibrary::print_picturestore, &picLibrary);
+        // picLibrary.print_picturestore();
         break;
       }
       case 1 : { // load <file_path> <file_name>
-        picLibrary.loadpicture(tokens[1], tokens[2]);
+        workerthreads.emplace_back(&PicLibrary::loadpicture, &picLibrary, tokens[1], tokens[2]);
+        // picLibrary.loadpicture(tokens[1], tokens[2]);
         break;
       }
       case 2 : { // unload <file_name>
-        picLibrary.unloadpicture(tokens[1]);
+        workerthreads.emplace_back(&PicLibrary::unloadpicture, &picLibrary, tokens[1]);
+        // picLibrary.unloadpicture(tokens[1]);
         break;
       }
       case 3 : { // save <file_name> <file_path>
-        picLibrary.savepicture(tokens[1], tokens[2]);
+        workerthreads.emplace_back(&PicLibrary::savepicture, &picLibrary, tokens[1], tokens[2]);
+        // picLibrary.savepicture(tokens[1], tokens[2]);
         break;
       }
       case 4 : { // display <file_name>
-        picLibrary.display(tokens[1]); // ME : NEED A WAY TO CLOSE THE GUI WINDOW BY A KEY STROKE
-        string anything;
-        do {
-          getline(cin, anything);
-        } while (getline(cin, anything));
+        workerthreads.emplace_back(&PicLibrary::display, &picLibrary, tokens[1]);
+        // picLibrary.display(tokens[1]);
         break;
       }
       case 5 : { // invert <file_name>
-        picLibrary.invert(tokens[1]);
+        workerthreads.emplace_back(&PicLibrary::invert, &picLibrary, tokens[1]);
+        // picLibrary.invert(tokens[1]);
         break;
       }
       case 6 : { // grayscale <file_name>
-        picLibrary.grayscale(tokens[1]);
+        workerthreads.emplace_back(&PicLibrary::grayscale, &picLibrary, tokens[1]);
+        // picLibrary.grayscale(tokens[1]);
         break;
       }
       case 7 : { // rotate [90|180|270] <file_name>
-        //int angle = stoi(tokens[1]);
-        picLibrary.rotate(stoi(tokens[1]), tokens[2]);
+        workerthreads.emplace_back(&PicLibrary::rotate, &picLibrary, stoi(tokens[1]), tokens[2]);
+        // int angle = stoi(tokens[1]);
+        // picLibrary.rotate(stoi(tokens[1]), tokens[2]);
         break;
       }
       case 8 : { // flip [H|V] <file_name>
-        picLibrary.flipVH(tokens[1][0], tokens[2]); // ME : VERY HACKY TO ACCESS 0TH INDEX OF SINGLE CHARACTER STRING, FIND AN APPROPRIATE FUNCTION
+          workerthreads.emplace_back(&PicLibrary::flipVH, &picLibrary, tokens[1][0], tokens[2]);
+        // picLibrary.flipVH(tokens[1][0], tokens[2]); // ME : VERY HACKY TO ACCESS 0TH INDEX OF SINGLE CHARACTER STRING, FIND AN APPROPRIATE FUNCTION
         break;
       }
       case 9 : { // blur <file_name>
-        picLibrary.blur(tokens[1]);
+        workerthreads.emplace_back(&PicLibrary::blur, &picLibrary, tokens[1]);
+        // picLibrary.blur(tokens[1]);
         break;
       }
       case 10 : {
@@ -147,6 +160,9 @@ int main(int argc, char ** argv) {
       }
     }
     if (tokens[0] == "exit") {
+      for (auto &i : workerthreads) {
+          i.join();
+      }
       break;
     } else {
       cout << "cpp prompt > ";

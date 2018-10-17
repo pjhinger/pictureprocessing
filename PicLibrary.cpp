@@ -69,8 +69,8 @@ void PicLibrary::display(
       string filename) { // ME : DOES display NEED A MUTEX? YES BECAUSE YOU'RE READING internalstorage USING .count(filename)
   // ME : char keystroke;
   if (internalstorage.count(filename) != 0) {
-    imgio.displayimage(internalstorage[filename].getimage());
     cout << filename + " is currently displayed." << endl;
+    imgio.displayimage(internalstorage[filename].getimage());
   } else {
     cerr << "error: could not display image from internal picture storage because " + filename + " doesn't exist."
          << endl;
