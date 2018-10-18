@@ -4,11 +4,13 @@
 #include <map>
 #include "Picture.hpp"
 #include "Utils.hpp"
+#include "PicNode.hpp"
 
 class PicLibrary {
 
   private:
-    map<string, Picture> internalstorage;
+    // map<string, Picture> internalstorage;
+    PicNode head, tail;
     Utils imgio = Utils();
 
   public:
