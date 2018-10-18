@@ -14,7 +14,6 @@ class Picture {
     // opencv representation of an image
     Mat img;
     Utils imgio;
-    mutable mutex picmutex;
 
   public:
       
@@ -29,38 +28,6 @@ class Picture {
   // default constructor/destructor
   Picture();
   ~Picture(){};
-
-  // copy constructor for Picture
-  Picture(Picture const& other) {
-      // ME : no need to lock this object because no other thread will be using it
-      // until after construction but we do need to lock the other object
-      unique_lock<mutex> otherlock(other.picmutex);
-
-      // ME : safely copies the data
-      img = other.img;
-      imgio = other.imgio;
-  }
-
-  // copy assignment operator for Picture
-  Picture& operator=(Picture const& other) {
-      if (&other != this) {
-          // ME : lock both objects
-          unique_lock<mutex> thislock(picmutex, defer_lock);
-          unique_lock<mutex> otherlock(other.picmutex, defer_lock);
-
-          // ME : ensures no deadlock
-          lock(thislock, otherlock);
-
-          // ME : safely copies the data
-          img = other.img;
-          imgio = other.imgio;
-      }
-      return *this;
-  }
-
-  // locks and unlocks picmutex for each Picture object
-  void lockmutex();
-  void unlockmutex();
 
   // determine the dimensions of the underlying image
   int getwidth();

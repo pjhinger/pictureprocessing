@@ -9,22 +9,22 @@
 
 using namespace std;
 
-string const lookuptable[11] = { "liststore",
-                                 "load",
-                                 "unload",
-                                 "save",
-                                 "display",
-                                 "invert",
-                                 "grayscale",
-                                 "rotate",
-                                 "flip",
-                                 "blur",
-                                 "view" };
+vector<string> const lookuptable{ "liststore",
+                                  "load",
+                                  "unload",
+                                  "save",
+                                  "display",
+                                  "invert",
+                                  "grayscale",
+                                  "rotate",
+                                  "flip",
+                                  "blur",
+                                  "view" };
 
 /* Used for switch statement's int expression (in which the cases are linked
  * to each option of the Picture Library) in main() */
 int lookup(const string &command) {
-  for (int i = 0; i < sizeof(lookuptable) / sizeof(string) ; i++) { // ME : SHORTER EXPRESSION FOR STOPPING CONDITION?
+  for (int i = 0; i < lookuptable.size() ; i++) { // ME : SHORTER EXPRESSION FOR STOPPING CONDITION?
     if (lookuptable[i] == command) {
       return i;
     }

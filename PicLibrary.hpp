@@ -1,16 +1,16 @@
 #ifndef PICLIB_H
 #define PICLIB_H
 
-#include <map>
+// #include <map>
 #include "Picture.hpp"
 #include "Utils.hpp"
-#include "PicNode.hpp"
+#include "LockablePicNodeList.hpp"
 
 class PicLibrary {
 
   private:
     // map<string, Picture> internalstorage;
-    PicNode head, tail;
+    LockablePicNodeList internalstorage;
     Utils imgio = Utils();
 
   public:

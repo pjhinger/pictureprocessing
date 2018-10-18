@@ -15,10 +15,14 @@ add_executable(cpp_pic_proc_pj2017
         Colour.cpp
         Colour.hpp
         example_input.txt
+        LockablePicNodeList.cpp
+        LockablePicNodeList.hpp
         Main.cpp
         Makefile
         PicLibrary.cpp
         PicLibrary.hpp
+        PicNode.cpp
+        PicNode.hpp
         Picture.cpp
         Picture.hpp
         Utils.cpp

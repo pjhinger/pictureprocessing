@@ -1,7 +1,3 @@
-//
-// Created by pj2017 on 18/10/18.
-//
-
 #ifndef PICNODE_H
 #define PICNODE_H
 
@@ -11,33 +7,40 @@
 /* The PicNode class is used to implement the internal picture storage of the
  * picLibrary as a singly-linked list. */
 
+// ME : REMEMBER TO EDIT MAKEFILE
+
 class PicNode {
 
   private:
-    const string filename;
+    /* content of each PicNode */
+    string filename;
     Picture pic;
-    atomic_bool deleteflag;
+
+    // ME : atomic_bool deleteflag;
+
+    /* pointers to previous/next nodes in the list*/
     PicNode* prev;
     PicNode* next;
-    mutex* picnodemutex;
 
-    // ME : REMEMBER TO EDIT MAKEFILE
+    /* fine-grained locking concurrency element*/
+    mutex* picnodemutex;
 
   public:
 
-    // class constructor, creates a picture node
-    PicNode(Picture pic, const string filename){};
+    /* class constructor, creates a picture node */
+    PicNode(string filename, Picture pic);
 
-    // PicNode query methods - ME : ORGANISE
-    string getfilename(PicNode picNode);
-    Picture getpic(PicNode picNode);
-    void setpic(Picture newpic);
-    atomic_bool getdeleteflag();
-    void toggledeleteflag();
+    /* PicNode query methods */
+    string getfilename();
+    Picture getpic();
+    // ME : atomic_bool getdeleteflag();
     PicNode* getprev();
     PicNode* getnext();
+    mutex* getlock();
 
-    // PicNode update methods
+    /* PicNode update methods */
+    void setpic(Picture newpic);
+    // ME : void toggledeleteflag();
     void setprev(PicNode* prev);
     void setnext(PicNode* next);
 
