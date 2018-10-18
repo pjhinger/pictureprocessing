@@ -83,57 +83,97 @@ int main(int argc, char ** argv) {
     vector<string> tokens = tokenise(line);
     switch (lookup(tokens[0])) { // ME : ADD ASSERTIONS FOR NUMBER OF TOKENS GIVEN IN EACH COMMAND IF TOO FEW/MANY ARGS GIVEN
       case 0 : { // liststore
-        workerthreads.emplace_back(&PicLibrary::print_picturestore, &picLibrary);
+        if (tokens.size() == 1) {
+            workerthreads.emplace_back(&PicLibrary::print_picturestore, &picLibrary);
+        } else {
+            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+        }
         // picLibrary.print_picturestore();
         break;
       }
       case 1 : { // load <file_path> <file_name>
         // workerthreads.emplace_back(&PicLibrary::loadpicture, &picLibrary, tokens[1], tokens[2]);
-        thread t = thread(&PicLibrary::loadpicture, &picLibrary, tokens[1], tokens[2]);
-        t.join();
+        if (tokens.size() == 3) {
+            thread t = thread(&PicLibrary::loadpicture, &picLibrary, tokens[1], tokens[2]);
+            t.join();
+        } else {
+            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+        }
         // picLibrary.loadpicture(tokens[1], tokens[2]);
         break;
       }
       case 2 : { // unload <file_name>
-        workerthreads.emplace_back(&PicLibrary::unloadpicture, &picLibrary, tokens[1]);
+        if (tokens.size() == 2) {
+            workerthreads.emplace_back(&PicLibrary::unloadpicture, &picLibrary, tokens[1]);
+        } else {
+            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+        }
         // picLibrary.unloadpicture(tokens[1]);
         break;
       }
       case 3 : { // save <file_name> <file_path>
         //workerthreads.emplace_back(&PicLibrary::savepicture, &picLibrary, tokens[1], tokens[2]);
-        thread t = thread(&PicLibrary::savepicture, &picLibrary, tokens[1], tokens[2]);
-        t.join();
+        if (tokens.size() == 3) {
+            thread t = thread(&PicLibrary::savepicture, &picLibrary, tokens[1], tokens[2]);
+            t.join();
+        } else {
+            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+        }
         // picLibrary.savepicture(tokens[1], tokens[2]);
         break;
       }
       case 4 : { // display <file_name>
-        workerthreads.emplace_back(&PicLibrary::display, &picLibrary, tokens[1]);
+        if (tokens.size() == 2) {
+            workerthreads.emplace_back(&PicLibrary::display, &picLibrary, tokens[1]);
+        } else {
+            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+        }
         // picLibrary.display(tokens[1]);
         break;
       }
       case 5 : { // invert <file_name>
-        workerthreads.emplace_back(&PicLibrary::invert, &picLibrary, tokens[1]);
+        if (tokens.size() == 2) {
+            workerthreads.emplace_back(&PicLibrary::invert, &picLibrary, tokens[1]);
+        } else {
+            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+        }
         // picLibrary.invert(tokens[1]);
         break;
       }
       case 6 : { // grayscale <file_name>
-        workerthreads.emplace_back(&PicLibrary::grayscale, &picLibrary, tokens[1]);
+        if (tokens.size() == 2) {
+            workerthreads.emplace_back(&PicLibrary::grayscale, &picLibrary, tokens[1]);
+        } else {
+            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+        }
         // picLibrary.grayscale(tokens[1]);
         break;
       }
       case 7 : { // rotate [90|180|270] <file_name>
-        workerthreads.emplace_back(&PicLibrary::rotate, &picLibrary, stoi(tokens[1]), tokens[2]);
+        if (tokens.size() == 3) {
+            workerthreads.emplace_back(&PicLibrary::rotate, &picLibrary, stoi(tokens[1]), tokens[2]);
+        } else {
+            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+        }
         // int angle = stoi(tokens[1]);
         // picLibrary.rotate(stoi(tokens[1]), tokens[2]);
         break;
       }
       case 8 : { // flip [H|V] <file_name>
-          workerthreads.emplace_back(&PicLibrary::flipVH, &picLibrary, tokens[1][0], tokens[2]);
+        if (tokens.size() == 3) {
+            workerthreads.emplace_back(&PicLibrary::flipVH, &picLibrary, tokens[1][0], tokens[2]);
+        } else {
+            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+        }
         // picLibrary.flipVH(tokens[1][0], tokens[2]); // ME : VERY HACKY TO ACCESS 0TH INDEX OF SINGLE CHARACTER STRING, FIND AN APPROPRIATE FUNCTION
         break;
       }
       case 9 : { // blur <file_name>
-        workerthreads.emplace_back(&PicLibrary::blur, &picLibrary, tokens[1]);
+        if (tokens.size() == 2) {
+            workerthreads.emplace_back(&PicLibrary::blur, &picLibrary, tokens[1]);
+        } else {
+            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+        }
         // picLibrary.blur(tokens[1]);
         break;
       }
