@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "LockablePicNodeList.hpp"
 
 using namespace std;
@@ -16,10 +18,7 @@ pair<PicNode*, PicNode*> LockablePicNodeList::findposition(string filename) {
   prev->getlock()->lock();
   PicNode* current = head->getnext();
   current->getlock()->unlock();
-  while (current->getfilename().compare(filename) < 0 && current->getnext() != nullptr)
-  {//
-    // break when
-    // filename found, iterate until the tail (check tail for name \n
+  while (current->getfilename().compare(filename) < 0 && current->getnext() != nullptr) {
     prev->getlock()->unlock();
     prev = current;
     current = current->getnext();
@@ -28,8 +27,8 @@ pair<PicNode*, PicNode*> LockablePicNodeList::findposition(string filename) {
       break;
     }
   }
-  prev->getlock()->unlock();
-  current->getlock()->unlock();
+  //prev->getlock()->unlock();
+  //current->getlock()->unlock();
   return make_pair(prev, current);
 }
 
@@ -39,7 +38,7 @@ pair<PicNode*, PicNode*> LockablePicNodeList::findposition(string filename) {
  * called in order to unlock the node */
 PicNode* LockablePicNodeList::findpicnode(string filename) { // ME : skipping a node if it's locked? (you can use filename to find out if you need to access it?)
   PicNode* picnode = findposition(filename).second;
-  picnode->getlock()->lock();
+  //picnode->getlock()->lock();
   if (picnode->getfilename() == filename) { // ME : && picnode != tail ?????
     return picnode;
   }
@@ -48,8 +47,10 @@ PicNode* LockablePicNodeList::findpicnode(string filename) { // ME : skipping a 
 
 /* used to unlock PicNode* picnode returned from the find method above after
  * transformations have been done on Picture */
-void LockablePicNodeList::unlockpicnode(PicNode* picnode) {
-  picnode->getlock()->unlock();
+void LockablePicNodeList::unlockpicnodes(pair<PicNode*, PicNode*> pair) {
+  //picnode->getlock()->unlock();
+  pair.first->getlock()->unlock();
+  pair.second->getlock()->unlock();
 }
 
 /* implements fine-grained locking - adds an element to the list (by filename
@@ -61,9 +62,7 @@ bool LockablePicNodeList::insertordered(string path, string filename) {
   cout << "constructed node";
   pair<PicNode*, PicNode*> position = findposition(filename);
   PicNode* prev = position.first;
-  prev->getlock()->lock();
   PicNode* current = position.second;
-  current->getlock()->lock();
   cout << "Visiting here";
   bool result = current->getfilename() == filename;
   if (result) {
@@ -83,9 +82,7 @@ bool LockablePicNodeList::insertordered(string path, string filename) {
 bool LockablePicNodeList::remove(string filename) {
   pair<PicNode*, PicNode*> position = findposition(filename);
   PicNode* prev = position.first;
-  prev->getlock()->lock();
   PicNode* current = position.second;
-  current->getlock()->lock();
 
   bool result = current->getfilename() == filename;
   if (result) {

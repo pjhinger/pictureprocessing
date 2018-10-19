@@ -20,7 +20,7 @@ class LockablePicNodeList {
   pair<PicNode*, PicNode*> findposition(string filename);
   PicNode* findpicnode(string filename); // ME : ALL ACTIVITIES ON NODE IS DONE THROUGH ACCESSING THE POINTER?
 
-  void unlockpicnode(PicNode* picnode);
+  void unlockpicnodes(pair<PicNode*,PicNode*> pair);
   bool insertordered(string path, string filename);
   bool remove(string filename);
   void printallfilenames(); // ME : NEED TO CHECK IF THE FILE YOU'RE ABOUT TO COUT IS DELETED USING deleteflag
