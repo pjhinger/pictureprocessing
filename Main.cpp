@@ -88,7 +88,6 @@ int main(int argc, char **argv) {
         break;
       }
       case 1 : { /* load <file_path> <file_name> */
-        cout << tokens.size() << endl;
         if (tokens.size() == 3) {
           thread t = thread(&PicLibrary::loadpicture, &picLibrary, tokens[1],
                             tokens[2]);
@@ -180,7 +179,8 @@ int main(int argc, char **argv) {
       }
       case 9 : { /* blur <file_name> */
         if (tokens.size() == 2) {
-          workerthreads.emplace_back(&PicLibrary::blur, &picLibrary, tokens[1]);
+          workerthreads.emplace_back(&PicLibrary::rowblur, &picLibrary,
+              tokens[1]);
         } else {
           cerr
               << "incorrect number of arguments. command failed. type \"view\" to see a list of options."
