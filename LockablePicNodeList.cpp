@@ -3,310 +3,111 @@
 using namespace std;
 
 LockablePicNodeList::LockablePicNodeList() {
-  head = NULL;
-  tail = NULL;
-
-  /* fine-grained locking */
-  headlock = new mutex();
-  taillock = new mutex();
+  cout << "inside constructor for list" << endl;
+  head = new PicNode("\n", Picture("images/test.jpg"));
+  tail = new PicNode("\n", Picture("images/test.jpg"));
+  head->setnext(tail);
+  cout << "finished constructing list" << endl;
 }
 
-Picture LockablePicNodeList::getpicnodepicture(string filename) {
-  headlock->lock();
-
-  PicNode* current = NULL;
-  PicNode* next = head;
-
-  string name;
-
-  /* traversal of all PicNode elements */
-  while (next != NULL && name != filename) {
-    next->getlock()->lock();
-    if (next == head) {
-      headlock->unlock();
-    } else {
-      current->getlock()->unlock();
-    }
-
-    current = next;
-    next = current->getnext();
-    name = current->getfilename();
-    if (name == filename) {
-      // current->getlock()->unlock();
-      // return true;
-      current->getlock()->lock();
-      return current->getpic();
+/* returns a pair of PicNode* pair<prev, current> */
+pair<PicNode*, PicNode*> LockablePicNodeList::findposition(string filename) {
+  PicNode* prev = head;
+  prev->getlock()->lock();
+  PicNode* current = head->getnext();
+  current->getlock()->unlock();
+  while (current->getfilename().compare(filename) < 0) {// break when
+    // filename found, iterate until the tail (check tail for name \n
+    prev->getlock()->unlock();
+    prev = current;
+    current = current->getnext();
+    current->getlock();
+    if (current == tail) {
+      break;
     }
   }
-
-  /* filename is not in the list so unlock everything locked by this method */
-  /*if (current == NULL) { // ME : THE ASSUMPTION, IT'S BEEN CHECKED THAT filename exists
-    headlock->unlock();
-  } else {
-    current->getlock()->unlock();
-  }
-  return false;*/
+  prev->getlock()->unlock();
+  current->getlock()->unlock();
+  return make_pair(prev, current);
 }
 
-// ME : I DON'T THINK WE NEED THIS METHOD
-void LockablePicNodeList::setpicnodepicture(string filename, Picture pic) {
-  headlock->lock();
-
-  PicNode* current = NULL;
-  PicNode* next = head;
-
-  string name;
-
-  /* traversal of all PicNode elements */
-  while (next != NULL && name != filename) {
-    next->getlock()->lock();
-    if (next == head) {
-      headlock->unlock();
-    } else {
-      current->getlock()->unlock();
-    }
-
-    current = next;
-    next = current->getnext();
-    name = current->getfilename();
-    if (name == filename) {
-      // current->getlock()->unlock();
-      // return true;
-      current->setpic(pic);
-      current->getlock()->unlock();
-    }
+/* implements fine-grained locking - finds, locks and returns PicNode* if
+ * filename found, otherwise returns a nullptr - every time a call to
+ * findpicnode is made, unlockpicnode() (implemented below) must also be
+ * called in order to unlock the node */
+PicNode* LockablePicNodeList::findpicnode(string filename) { // ME : skipping a node if it's locked? (you can use filename to find out if you need to access it?)
+  PicNode* picnode = findposition(filename).second;
+  picnode->getlock()->lock();
+  if (picnode->getfilename() == filename) { // ME : && picnode != tail ?????
+    return picnode;
   }
-
-  /* filename is not in the list so unlock everything locked by this method */
-  /*if (current == NULL) { // ME : THE ASSUMPTION, IT'S BEEN CHECKED THAT filename exists
-    headlock->unlock();
-  } else {
-    current->getlock()->unlock();
-  }
-  return false;*/
+  return nullptr;
 }
 
-/*
-int LockablePicNodeList::getlength() {
-  return length;
-}
-*/
-
-/* implements fine-grained locking - looks for an element in the list -
- * returns true if filename found, false if not found */
-bool LockablePicNodeList::search(string filename) {
-  headlock->lock();
-
-  PicNode* current = NULL;
-  PicNode* next = head;
-
-  string name;
-
-  /* traversal of all PicNode elements */
-  while (next != NULL && name != filename) {
-    next->getlock()->lock();
-    if (next == head) {
-      headlock->unlock();
-    } else {
-      current->getlock()->unlock();
-    }
-
-    current = next;
-    next = current->getnext();
-    name = current->getfilename();
-    if (name == filename) {
-      current->getlock()->unlock();
-      return true;
-    }
-  }
-
-  /* filename is not in the list so unlock everything locked by this method */
-  if (current == NULL) {
-      headlock->unlock();
-  } else {
-      current->getlock()->unlock();
-  }
-  return false;
+/* used to unlock PicNode* picnode returned from the find method above after
+ * transformations have been done on Picture */
+void LockablePicNodeList::unlockpicnode(PicNode* picnode) {
+  picnode->getlock()->unlock();
 }
 
 /* implements fine-grained locking - adds an element to the list (by filename
  * in lexicographical order) - returns true if inserted, false if not
  * inserted meaning PicNode with filename already exists in list */
 bool LockablePicNodeList::insertordered(string path, string filename) {
-  headlock->lock();
-
-  PicNode* newNode = new PicNode(filename, Picture(path));
-
-  /* special case for an empty list */
-  if (head == NULL && tail == NULL){
-    head = newNode;
-    tail = newNode;
-    headlock->unlock();
-    length++;
-    return true;
-  }
-
-  PicNode* prev = NULL;
-  PicNode* current = NULL;
-  PicNode* next = head;
-
-  /* traversal of all PicNode elements */
-  while (next != NULL) {
-    next->getlock()->lock();
-    if (current != NULL) {
-      if (current == head) {
-        headlock->unlock();
-      } else {
-        prev->getlock()->unlock();
-      }
-    }
-
-    prev = current;
-    current = next;
-    next = current->getnext();
-    string name = current->getfilename();
-
-    if (name == filename) {
-      delete(newNode);
-      current->getlock()->unlock();
-      if (prev != NULL) {
-        prev->getlock()->unlock();
-      } else {
-        headlock->unlock();
-      }
-      return false;
-    }
-
-    if (name.compare(filename) > 0) {
-      /* update newNode's pointers */
-      newNode->setprev(prev);
-      newNode->setnext(current);
-
-      /* updates prev pointer of current */
-      current->setprev(newNode);
-
-      /* update next pointer of prev element (or list head) */
-      if (prev != NULL) {
-        prev->setnext(newNode);
-        prev->getlock()->unlock();
-      } else {
-        head = newNode;
-        headlock->unlock();
-      }
-
-      current->getlock()->unlock();
-      length++;
-      return true;
-    }
-  }
-
-  /* if newNode not inserted in the while loop then item belongs on the end of the list */
-  taillock->lock();
-  tail->setnext(newNode);
-  newNode->setprev(tail);
-  tail = newNode;
-  taillock->unlock();
-  if (prev != NULL) {
-    prev->getlock()->unlock();
+  PicNode* newnode = new PicNode(filename, Picture(path));
+  cout << "Visiting here";
+  pair<PicNode*, PicNode*> position = findposition(filename);
+  PicNode* prev = position.first;
+  prev->getlock()->lock();
+  PicNode* current = position.second;
+  current->getlock()->lock();
+  cout << "Visiting here";
+  bool result = current->getfilename() == filename;
+  if (result) {
+    delete(newnode);
   } else {
-    headlock->unlock();
+    prev->setnext(newnode);
+    newnode->setnext(current);
   }
+
+  prev->getlock()->unlock();
   current->getlock()->unlock();
-  length++;
-  return true;
+  return !result;
 }
 
 /* implements fine-grained locking -  removes an element from the list returns
  * true if removed, false if PicNode with filename doesn't exist */
 bool LockablePicNodeList::remove(string filename) {
-  headlock->lock();
+  pair<PicNode*, PicNode*> position = findposition(filename);
+  PicNode* prev = position.first;
+  prev->getlock()->lock();
+  PicNode* current = position.second;
+  current->getlock()->lock();
 
-  PicNode* prev = NULL;
-  PicNode* current = NULL;
-  PicNode* next = head;
-
-  /* traversal of all PicNode elements */
-  while (next != NULL) {
-    next->getlock()->lock();
-    if (current != NULL) { // ME : WHY????
-      if (current == head) {
-        headlock->unlock();
-      } else {
-        prev->getlock()->unlock();
-      }
-    }
-
-    prev = current;
-    current = next;
-    next = current->getnext();
-    string name = current->getfilename();
-
-    if (name == filename) {
-
-      /* updates prev pointer of next element (or list tail) */
-      if (next != NULL) {
-        next->getlock()->lock();
-        next->setprev(prev);
-      } else {
-        taillock->lock();
-        tail = prev;
-      }
-
-      /* updates next pointer of prev element (or list head) */
-      if (prev != NULL) {
-        prev->setnext(next);
-      } else {
-        head = next;
-      }
-
-      /* frees up memory for PicNode object */
-      delete(current);
-
-      if (next != NULL) {
-        next->getlock()->unlock();
-      } else {
-        taillock->unlock();
-      }
-
-      if (prev != NULL) {
-        prev->getlock()->unlock();
-      } else {
-        headlock->unlock();
-      }
-
-      length--;
-      return true;
-    }
+  bool result = current->getfilename() == filename;
+  if (result) {
+    prev->setnext(current->getnext());
   }
 
-  if (prev != NULL) {
-    prev->getlock()->unlock();
-  } else {
-    headlock->unlock();
-  }
-
-  if (current != NULL) {
-    current->getlock()->unlock();
-  }
-
-  return false;
+  prev->getlock()->unlock();
+  current->getlock()->unlock();
+  return result;
 }
 
 /* implements fine-grained locking - outputs the contents in the list by
  * printing all the filenames currently inside it */
 void LockablePicNodeList::printallfilenames() {
-  PicNode* current = NULL;
-  PicNode* next = head;
+  PicNode* prev = head;
+  PicNode* current = head->getnext();
 
   cout << "internal picture storage:" << endl;
-  if (length != 0) {
-
-    while (next != NULL) {
-      current = next;
-      next = current->getnext();
-      cout << current->getfilename() << endl;
-    }
-  } else {
+  if (head == nullptr && tail == nullptr) {
     cout << "(internal picture storage is currently empty)" << endl;
+  } else {
+    while (current != nullptr) {
+      prev = current;
+      current = current->getnext();
+      cout << prev->getfilename() << endl;
+    }
   }
 }

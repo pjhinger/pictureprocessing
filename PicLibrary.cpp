@@ -13,66 +13,68 @@ void PicLibrary::print_picturestore() {
 }
 
 void PicLibrary::loadpicture(string path, string filename) { // ME : COME BACK TO TEST THIS
-  if (!internalstorage.search(filename)) {
-    if (imgio.isitjpg(path)) {
-      internalstorage.insertordered(path, filename);
+  if (imgio.isitjpg(path)) {
+    bool result = internalstorage.insertordered(path, filename);
+    if (!result) {
+      cerr <<
+           "error: could not load image into internal picture storage because " +
+           filename + " already exists." << endl;
     } else {
-      cerr << "error: could not load image into internal picture storage because the path " + path +
-              " does not point to a .jpg file." << endl;
+      cerr <<
+           "error: could not load image into internal picture storage because the path " +
+           path + " does not point to a .jpg file." << endl;
     }
-  } else {
-    cerr << "error: could not load image into internal picture storage because " + filename + " already exists."
-         << endl;
   }
 }
 
 void PicLibrary::unloadpicture(string filename) {
-  if (internalstorage.search(filename)) {
-    internalstorage.remove(filename);
-  } else {
-    cerr << "error: could not unload image from internal picture storage because " + filename + " doesn't exist."
-         << endl;
+  bool result = internalstorage.remove(filename);
+  if (!result) {
+      cerr << "error: could not unload image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
 }
 
 void PicLibrary::savepicture(string filename, string path) { // ME: I NEED A GETTER (AND SETTER?) FOR PicNode from LockablePicNodeList - WHAT TO DO IF PATH DOESN'T EXIST
-  if (internalstorage.search(filename)) {
-    Picture pic = internalstorage.getpicnodepicture(filename); // ME : GET PicNode THEN GET Picture
-    imgio.saveimage(pic.getimage(), path);
+  PicNode* picnode = internalstorage.findpicnode(filename);
+  if (picnode != nullptr) {
+    imgio.saveimage(picnode->getpic().getimage(), path);
   } else {
     cerr << "error: could not save image to internal picture storage because " + filename + " doesn't exist." << endl;
   }
+  internalstorage.unlockpicnode(picnode);
 }
 
-void PicLibrary::display(string filename) { // ME : DOES display NEED A MUTEX? YES BECAUSE YOU'RE READING internalstorage USING .count(filename)
-  if (internalstorage.search(filename)) {
-    cout << filename + " is currently displayed." << endl;
-    imgio.displayimage(internalstorage.getpicnodepicture(filename).getimage()); // ME : GET PicNode THEN GET Picture
+void PicLibrary::display(string filename) {
+  PicNode* picnode = internalstorage.findpicnode(filename);
+  if (picnode != nullptr) {
+    cout << filename + " is currently displayed" << endl; // ME : DO I NEED THIS MESSAGE?
+    imgio.displayimage(picnode->getpic().getimage());
   } else {
-    cerr << "error: could not display image from internal picture storage because " + filename + " doesn't exist."
-         << endl;
+    cerr << "error: could not display image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
+  internalstorage.unlockpicnode(picnode);
 }
 
 void PicLibrary::invert(string filename) { // ME : DO ALL PICTURE TRANSFORMATIONS NEED MUTEXES? REFER TO QUESTIONS IN NOTES APP ON LAPTOP - NO BECAUSE OF THE WAY YOU IMPLEMENTED IT???
-  if (internalstorage.search(filename)) {
-    Picture pic = internalstorage.getpicnodepicture(filename);
+  PicNode* picnode = internalstorage.findpicnode(filename);
+  if (picnode != nullptr) {
+    Picture pic = picnode->getpic();
     for (int i = 0; i < pic.getwidth(); i++) {
       for (int j = 0; j < pic.getheight(); j++) {
         Colour pixel = pic.getpixel(i, j); // ME : USE auto OR typeOfVariable CONSISTENTLY? CHOOSE WHEN AUTO APPROPRIATE?
         pic.setpixel(i, j, Colour(255 - pixel.getred(), 255 - pixel.getgreen(), 255 - pixel.getblue()));
       }
     }
-    internalstorage.setpicnodepicture(filename, pic); // ME : YOU ONLY DID THIS TO UNLOCK IT THOUGH, IS THERE A BETTER WAY TO UNLOCK IT?
   } else {
-    cerr << "error: could not invert image from internal picture storage because " + filename + " doesn't exist."
-         << endl;
+    cerr << "error: could not invert image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
+  internalstorage.unlockpicnode(picnode);
 }
 
 void PicLibrary::grayscale(string filename) {
-  if (internalstorage.search(filename)) {
-    Picture pic = internalstorage.getpicnodepicture(filename);
+  PicNode* picnode = internalstorage.findpicnode(filename);
+  if (picnode != nullptr) {
+    Picture pic = picnode->getpic();
     for (int i = 0; i < pic.getwidth(); i++) {
       for (int j = 0; j < pic.getheight(); j++) {
         Colour pixel = pic.getpixel(i, j);
@@ -80,17 +82,17 @@ void PicLibrary::grayscale(string filename) {
         pic.setpixel(i, j, Colour(avg, avg, avg));
       }
     }
-    internalstorage.setpicnodepicture(filename, pic); // ME : ALSO, SETTING PIC MIGHT BE REDUNDANT WHEN IT'S ALREADY ACCESSED THE POINTER, SO YOU'RE JUST SETTING THE SAME IMAGE TWICE
   } else {
-    cerr << "error: could not grayscale image from internal picture storage because " + filename + " doesn't exist."
-         << endl;
+    cerr << "error: could not grayscale image from internal picture storage because \" + filename + \" doesn't exist." << endl;
   }
+  internalstorage.unlockpicnode(picnode);
 }
 
 // ME : CHANGE for loop VARIABLES FROM x AND y TO i AND j
 void PicLibrary::rotate(int angle, string filename) {
-  if (internalstorage.search(filename)) {
-    Picture pic = internalstorage.getpicnodepicture(filename);
+  PicNode* picnode = internalstorage.findpicnode(filename);
+  if (picnode != nullptr) {
+    Picture pic = picnode->getpic();
     Picture newpic;
     int picwidth = pic.getwidth();
     int picheight = pic.getheight();
@@ -130,16 +132,17 @@ void PicLibrary::rotate(int angle, string filename) {
         break;
       }
     }
-    internalstorage.setpicnodepicture(filename, newpic);
+    picnode->setpic(newpic);
   } else {
-    cerr << "error: could not rotate image from internal picture storage because " + filename + " doesn't exist."
-         << endl;
+    cerr << "error: could not rotate image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
+  internalstorage.unlockpicnode(picnode);
 }
 
 void PicLibrary::flipVH(char plane, string filename) {
-  if (internalstorage.search(filename)) {
-    Picture pic = internalstorage.getpicnodepicture(filename);
+  PicNode* picnode = internalstorage.findpicnode(filename);
+  if (picnode != nullptr) {
+    Picture pic = picnode->getpic();
     int picwidth = pic.getwidth();
     int picheight = pic.getheight();
     Picture newpic = Picture(picwidth, picheight);
@@ -158,16 +161,18 @@ void PicLibrary::flipVH(char plane, string filename) {
     } else {
       cerr << "error: can only flip images vertically (V) or horizontally (H)." << endl;
     }
-    internalstorage.setpicnodepicture(filename, newpic);
+    picnode->setpic(newpic);
   } else {
     cerr << "error: could not flip image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
+  internalstorage.unlockpicnode(picnode);
 }
 
 // ME : REMOVE THIS IF YOU'RE USING THE CONCURRENT IMPLEMENTATION
 void PicLibrary::blur(string filename) {
-  if (internalstorage.search(filename)) {
-    Picture pic = internalstorage.getpicnodepicture(filename);
+  PicNode* picnode = internalstorage.findpicnode(filename);
+  if (picnode != nullptr) {
+    Picture pic = picnode->getpic();
     int picwidth = pic.getwidth();
     int picheight = pic.getheight();
     Picture newpic = Picture(picwidth, picheight);
@@ -182,33 +187,11 @@ void PicLibrary::blur(string filename) {
     auto sequentialblurduration = duration_cast<milliseconds>(blurfinish - blurstart);
     cout << filename + ": sequential blur's execution time = " << sequentialblurduration.count() << " milliseconds." << endl;*/
 
-    internalstorage.setpicnodepicture(filename, newpic);
+    picnode->setpic(newpic);
   } else {
     cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
-}
-
-/* Used to check if thread implementations of blur gave the exact same output as my working blur. */
-void PicLibrary::blurcheck(string filename1, string filename2) { // ME : DELETE THIS LATER
-  Picture pic1 = internalstorage.getpicnodepicture(filename1);
-  Picture pic2 = internalstorage.getpicnodepicture(filename2);
-  bool result = true;
-  if (pic1.getheight() == pic2.getheight() && pic1.getwidth() == pic2.getwidth()) {
-    for (int i = 0; i < pic1.getwidth(); i++) {
-      for (int j = 0; j < pic1.getheight(); j++) {
-        auto p1 = pic1.getpixel(i,j);
-        auto p2 = pic2.getpixel(i,j);
-        result &= (p1.getred() == p2.getred() && p1.getgreen() == p2.getgreen() && p1.getblue() == p2.getblue());
-      }
-    }
-    if (result) {
-      cout << filename1 + " and " + filename2 + " are identically blurred." << endl;
-    } else {
-      cerr << filename1 + " and " + filename2 + " have not been identically blurred." << endl;
-    }
-  } else {
-    cerr << filename1 + " and " + filename2 + " weren't of the same dimensions."  << endl;
-  }
+  internalstorage.unlockpicnode(picnode);
 }
 
 // ME : FOR ALL BELOW, ASSERT PIC SIZE HAS SAME DIMENSIONS AS NEW PIC
@@ -220,8 +203,9 @@ void rowblurthread(Picture pic, Picture newpic, int row) {
 }
 
 void PicLibrary::rowblur(string filename) {
-  if (internalstorage.search(filename)) {
-    Picture pic = internalstorage.getpicnodepicture(filename);
+  PicNode* picnode = internalstorage.findpicnode(filename);
+  if (picnode != nullptr) {
+    Picture pic = picnode->getpic();
     int picwidth = pic.getwidth();
     int picheight = pic.getheight();
     Picture newpic = Picture(picwidth, picheight);
@@ -238,11 +222,11 @@ void PicLibrary::rowblur(string filename) {
     auto rowblurduration = duration_cast<milliseconds>(blurfinish - blurstart);
     cout << filename + ": row blur's execution time = " << rowblurduration.count() << " milliseconds." << endl;*/
 
-    internalstorage.setpicnodepicture(filename, newpic);
+    picnode->setpic(newpic);
   } else {
     cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
-
+  internalstorage.unlockpicnode(picnode);
 }
 
 void columnblurthread(Picture pic, Picture newpic, int column) {
@@ -252,8 +236,9 @@ void columnblurthread(Picture pic, Picture newpic, int column) {
 }
 
 void PicLibrary::columnblur(string filename) {
-  if (internalstorage.search(filename)) {
-    Picture pic = internalstorage.getpicnodepicture(filename);
+  PicNode* picnode = internalstorage.findpicnode(filename);
+  if (picnode != nullptr) {
+    Picture pic = picnode->getpic();
     int picwidth = pic.getwidth();
     int picheight = pic.getheight();
     Picture newpic = Picture(picwidth, picheight);
@@ -270,10 +255,11 @@ void PicLibrary::columnblur(string filename) {
     auto columnblurduration = duration_cast<milliseconds>(blurfinish - blurstart);
     cout << filename + ": column blur's execution time = " << columnblurduration.count() << " milliseconds." << endl;*/
 
-    internalstorage.setpicnodepicture(filename, newpic);
+    picnode->setpic(newpic);
   } else {
     cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
+  internalstorage.unlockpicnode(picnode);
 }
 
 // ME : ASSERT sectorsize IS OF FORM 2^2n AND n > 0 (OTHERWISE IF n = 0 THEN THIS WILL HAVE THE SAME EFFECT AS pixelblurthread
@@ -288,8 +274,9 @@ void sectorblurthread(Picture pic, Picture newpic, int sectorsize, int xstart, i
 }
 
 void PicLibrary::sectorblur(string filename, int sectorsize) {
-  if (internalstorage.search(filename)) {
-    Picture pic = internalstorage.getpicnodepicture(filename);
+  PicNode* picnode = internalstorage.findpicnode(filename);
+  if (picnode != nullptr) {
+    Picture pic = picnode->getpic();
     int picwidth = pic.getwidth();
     int picheight = pic.getheight();
     Picture newpic = Picture(picwidth, picheight);
@@ -310,10 +297,11 @@ void PicLibrary::sectorblur(string filename, int sectorsize) {
     auto sectorblurduration = duration_cast<milliseconds>(blurfinish - blurstart);
     cout << filename + ": sector blur's execution time = " << sectorblurduration.count() << " milliseconds." << endl;*/
 
-    internalstorage.setpicnodepicture(filename, newpic);
+    picnode->setpic(newpic);
   } else {
     cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
+  internalstorage.unlockpicnode(picnode);
 }
 
 void pixelblurthread(Picture pic, Picture newpic, int x, int y) {
@@ -321,8 +309,9 @@ void pixelblurthread(Picture pic, Picture newpic, int x, int y) {
 }
 
 void PicLibrary::pixelblur(string filename) {
-  if (internalstorage.search(filename)) {
-    Picture pic = internalstorage.getpicnodepicture(filename);
+  PicNode* picnode = internalstorage.findpicnode(filename);
+  if (picnode != nullptr) {
+    Picture pic = picnode->getpic();
     int picwidth = pic.getwidth();
     int picheight = pic.getheight();
     Picture newpic = Picture(picwidth, picheight);
@@ -343,8 +332,9 @@ void PicLibrary::pixelblur(string filename) {
     auto pixelblurduration = duration_cast<milliseconds>(blurfinish - blurstart);
     cout << filename + ": pixel blur's execution time = " << pixelblurduration.count() << " milliseconds." << endl;*/
 
-    internalstorage.setpicnodepicture(filename, newpic);
+    picnode->setpic(newpic);
   } else {
     cerr << "error: could not blur image from internal picture storage because " + filename + " doesn't exist." << endl;
   }
+  internalstorage.unlockpicnode(picnode);
 }

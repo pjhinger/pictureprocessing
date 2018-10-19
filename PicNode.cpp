@@ -6,8 +6,8 @@ PicNode::PicNode(string filename, Picture pic) {
   this->filename = filename;
   this->pic = pic;
   // ME : deleteflag = false;
-  prev = NULL;
-  next = NULL;
+  prev = nullptr;
+  next = nullptr;
   picnodemutex = new mutex(); /* fine-grained locking */
   // ME : NEED TO SET PREV AND NEXT STILL
 }
@@ -25,10 +25,6 @@ atomic_bool PicNode::getdeleteflag() {
   return deleteflag;
 }
 */
-
-PicNode* PicNode::getprev() {
-  return prev;
-}
 
 PicNode* PicNode::getnext() {
   return next;
@@ -48,10 +44,6 @@ void PicNode::toggledeleteflag() {
   deleteflag = not deleteflag;
 }
 */
-
-void PicNode::setprev(PicNode* prev) {
-  this->prev = prev;
-}
 
 void PicNode::setnext(PicNode* next) {
   this->next = next;

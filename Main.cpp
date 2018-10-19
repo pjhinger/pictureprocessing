@@ -59,7 +59,9 @@ int main(int argc, char ** argv) {
   // ME : SHOULD PROBABLY OUTPUT ALL POSSIBLE COMMAND LINE OPTIONS FROM THE SPEC'S BNF
   // ME : REMEMBER TO FREE ANYTHING THAT NEEDED MEMORY FROM HEAP!
 
+  cout << "before initialising library" << endl;
   auto picLibrary = PicLibrary(); // ME : auto OR PicLibrary FOR DECLARING TYPE
+  cout << "library initialised" << endl;
 
   /* Pre-loads into picLibrary any images from the image filepaths (if any)
    * that the program is invoked with on the command-line. */
@@ -92,12 +94,17 @@ int main(int argc, char ** argv) {
         break;
       }
       case 1 : { // load <file_path> <file_name>
+        cout << "inside main load" << endl;
+        cout << tokens.size() << endl;
         // workerthreads.emplace_back(&PicLibrary::loadpicture, &picLibrary, tokens[1], tokens[2]);
         if (tokens.size() == 3) {
-            thread t = thread(&PicLibrary::loadpicture, &picLibrary, tokens[1], tokens[2]);
-            t.join();
+          cout << "tokens size correct" << endl;
+          thread t = thread(&PicLibrary::loadpicture, &picLibrary,
+              tokens[1], tokens[2]);
+          cout << "made a thread" << endl;
+          t.join();
         } else {
-            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+          cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
         }
         // picLibrary.loadpicture(tokens[1], tokens[2]);
         break;

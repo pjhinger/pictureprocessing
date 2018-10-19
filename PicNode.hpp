@@ -1,7 +1,7 @@
 #ifndef PICNODE_H
 #define PICNODE_H
 
-#include <atomic>
+#include <atomic> // ME : DELETE THIS IF deleteflag isn't used
 #include "Picture.hpp"
 
 /* The PicNode class is used to implement the internal picture storage of the
@@ -34,14 +34,12 @@ class PicNode {
     string getfilename();
     Picture getpic();
     // ME : atomic_bool getdeleteflag();
-    PicNode* getprev();
     PicNode* getnext();
     mutex* getlock();
 
     /* PicNode update methods */
     void setpic(Picture newpic);
     // ME : void toggledeleteflag();
-    void setprev(PicNode* prev);
     void setnext(PicNode* next);
 
 };
