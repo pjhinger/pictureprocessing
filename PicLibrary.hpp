@@ -1,7 +1,6 @@
 #ifndef PICLIB_H
 #define PICLIB_H
 
-// #include <map>
 #include "Picture.hpp"
 #include "Utils.hpp"
 #include "LockablePicNodeList.hpp"
@@ -9,7 +8,6 @@
 class PicLibrary {
 
   private:
-    // map<string, Picture> internalstorage;
     LockablePicNodeList internalstorage;
     Utils imgio = Utils();
 
@@ -30,7 +28,7 @@ class PicLibrary {
   void grayscale(string filename);
   void rotate(int angle, string filename);
   void flipVH(char plane, string filename);
-  void blur(string filename); // ME : DELETE THIS?
+  void blur(string filename);
   void rowblur(string filename);
   void columnblur(string filename);
   void sectorblur(string filename, int sectorsize);

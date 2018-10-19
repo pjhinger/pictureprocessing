@@ -36,24 +36,27 @@ void Picture::setpixel(int x, int y, Colour rgb) {
   img.at<cv::Vec3b>(y, x)[RED] = rgb.getred();
 }
 
-Colour Picture::blurpixel(int x, int y) { // ME : CAN YOU CHANGE THIS TO USE MEMBER-FUNCTION POINTERS & ASSERTIONS WHEN X,Y DOESNT FALL INTO THOSE CATEGORIES
+/* returns the Colour of a single pixel that's blurred if it is not a
+ * boundary pixel */
+Colour Picture::blurpixel(int x, int y) {
   int redblur = 0;
   int greenblur = 0;
   int blueblur = 0;
+
   if (x > 0 && x < getwidth() - 1 && y > 0 && y < getheight() - 1) {
-    for (int i = x - 1; i <= x + 1; i++) { // ME : CONSISTENCY OF < OR <= IN FOR-LOOP STOPPING CONDITIONS - CHOOSE ONE
-      for (int j = y - 1; j <= y + 1; j++) { // ME ALSO : COULD YOU SEPARATE THIS METHOD (e.g. averagecolour(x, y) MAY ALSO USE FUNCTION POINTERS?)
+    for (int i = x - 1; i <= x + 1; i++) {
+      for (int j = y - 1; j <= y + 1; j++) {
         Colour pixel = getpixel(i, j);
         redblur += pixel.getred();
         greenblur += pixel.getgreen();
         blueblur += pixel.getblue();
       }
     }
-    redblur /= 9; // ME : ENSURE THIS DOESN'T CAUSE AN INT-TO-FLOAT CONVERSION
-    greenblur /= 9; // ME : DIVIDE BY 9 INSIDE THE RETURN
+    redblur /= 9;
+    greenblur /= 9;
     blueblur /= 9;
     return {redblur, greenblur, blueblur};
-  } else { // ME : PIXEL MUST BE A BOUNDARY PIXEL THEREFORE RETURN SAME PIXEL;
+  } else {
     return getpixel(x, y);
   }
 }

@@ -9,22 +9,22 @@
 
 using namespace std;
 
-vector<string> const lookuptable{ "liststore",
-                                  "load",
-                                  "unload",
-                                  "save",
-                                  "display",
-                                  "invert",
-                                  "grayscale",
-                                  "rotate",
-                                  "flip",
-                                  "blur",
-                                  "view" };
+vector<string> const lookuptable{"liststore",
+                                 "load",
+                                 "unload",
+                                 "save",
+                                 "display",
+                                 "invert",
+                                 "grayscale",
+                                 "rotate",
+                                 "flip",
+                                 "blur",
+                                 "view"};
 
 /* Used for switch statement's int expression (in which the cases are linked
  * to each option of the Picture Library) in main() */
 int lookup(const string &command) {
-  for (int i = 0; i < lookuptable.size() ; i++) { // ME : SHORTER EXPRESSION FOR STOPPING CONDITION?
+  for (int i = 0; i < lookuptable.size(); i++) {
     if (lookuptable[i] == command) {
       return i;
     }
@@ -32,15 +32,15 @@ int lookup(const string &command) {
   return -1;
 }
 
-string getbasename(string path) { // ME : FIND MORE APPROPRIATE LOCATION FOR THIS METHOD IF POSSIBLE - TESTED: THIS WORKS
+string getbasename(string path) {
   string basename;
   for (char i : path) {
     i == '/' ? (basename = "") : (basename += i);
   }
-  return basename; // ME : TRY REMOVING THE .JPG POSTFIX FROM IT
+  return basename;
 }
 
-vector<string> tokenise(const string &line) { // ME : CHANGE TO AN ARRAY?
+vector<string> tokenise(const string &line) {
   vector<string> tokens;
   string token;
   stringstream check1(line);
@@ -50,15 +50,16 @@ vector<string> tokenise(const string &line) { // ME : CHANGE TO AN ARRAY?
   return tokens;
 }
 
-int main(int argc, char ** argv) {
+int main(int argc, char **argv) {
 
-  cout << "------------------------------------------------------" << endl; 
+  cout << "------------------------------------------------------" << endl;
   cout << "        The C++ Picture Processing Interpreter        " << endl;
   cout << "------------------------------------------------------" << endl;
 
   cout << "before initialising library" << endl;
-  auto picLibrary = PicLibrary(); // ME : auto OR PicLibrary FOR DECLARING TYPE
+  auto picLibrary = PicLibrary();
   cout << "library initialised" << endl;
+
   /* Pre-loads into picLibrary any images from the image filepaths (if any)
    * that the program is invoked with on the command-line. */
   if (argc > 0) {
@@ -69,7 +70,6 @@ int main(int argc, char ** argv) {
 
   vector<thread> workerthreads;
 
-  // ME : MAY NEED TO LOCK cout BECAUSE cpp prompt > IS BEING OUTPUT IS GETTING PRINTED ON THE SAME LINE
   cout << "type \"view\" to see a list of options." << endl;
 
   string line;
@@ -79,85 +79,112 @@ int main(int argc, char ** argv) {
     switch (lookup(tokens[0])) {
       case 0 : { // liststore
         if (tokens.size() == 1) {
-            workerthreads.emplace_back(&PicLibrary::print_picturestore, &picLibrary);
+          workerthreads.emplace_back(&PicLibrary::print_picturestore,
+                                     &picLibrary);
         } else {
-            cerr << "incorrect number of arguments. command failed. type "
-                    "\"view\" to see a list of options." << endl;
+          cerr << "incorrect number of arguments. command failed. type "
+                  "\"view\" to see a list of options." << endl;
         }
         break;
       }
       case 1 : { /* load <file_path> <file_name> */
         cout << tokens.size() << endl;
         if (tokens.size() == 3) {
-          thread t = thread(&PicLibrary::loadpicture, &picLibrary, tokens[1], tokens[2]);
+          thread t = thread(&PicLibrary::loadpicture, &picLibrary, tokens[1],
+                            tokens[2]);
           t.join();
         } else {
-          cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+          cerr
+              << "incorrect number of arguments. command failed. type \"view\" to see a list of options."
+              << endl;
         }
         break;
       }
       case 2 : { /* unload <file_name> */
         if (tokens.size() == 2) {
-            workerthreads.emplace_back(&PicLibrary::unloadpicture, &picLibrary, tokens[1]);
+          workerthreads.emplace_back(&PicLibrary::unloadpicture, &picLibrary,
+                                     tokens[1]);
         } else {
-            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+          cerr
+              << "incorrect number of arguments. command failed. type \"view\" to see a list of options."
+              << endl;
         }
         break;
       }
       case 3 : { /* save <file_name> <file_path> */
         if (tokens.size() == 3) {
-            thread t = thread(&PicLibrary::savepicture, &picLibrary, tokens[1], tokens[2]);
-            t.join();
+          thread t = thread(&PicLibrary::savepicture, &picLibrary, tokens[1],
+                            tokens[2]);
+          t.join();
         } else {
-            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+          cerr
+              << "incorrect number of arguments. command failed. type \"view\" to see a list of options."
+              << endl;
         }
         break;
       }
       case 4 : { /* display <file_name> */
         if (tokens.size() == 2) {
-            workerthreads.emplace_back(&PicLibrary::display, &picLibrary, tokens[1]);
+          workerthreads.emplace_back(&PicLibrary::display, &picLibrary,
+                                     tokens[1]);
         } else {
-            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+          cerr
+              << "incorrect number of arguments. command failed. type \"view\" to see a list of options."
+              << endl;
         }
         break;
       }
       case 5 : { /* invert <file_name> */
         if (tokens.size() == 2) {
-            workerthreads.emplace_back(&PicLibrary::invert, &picLibrary, tokens[1]);
+          workerthreads.emplace_back(&PicLibrary::invert, &picLibrary,
+                                     tokens[1]);
         } else {
-            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+          cerr
+              << "incorrect number of arguments. command failed. type \"view\" to see a list of options."
+              << endl;
         }
         break;
       }
       case 6 : { /* grayscale <file_name> */
         if (tokens.size() == 2) {
-            workerthreads.emplace_back(&PicLibrary::grayscale, &picLibrary, tokens[1]);
+          workerthreads.emplace_back(&PicLibrary::grayscale, &picLibrary,
+                                     tokens[1]);
         } else {
-            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+          cerr
+              << "incorrect number of arguments. command failed. type \"view\" to see a list of options."
+              << endl;
         }
         break;
       }
       case 7 : { /* rotate [90|180|270] <file_name> */
         if (tokens.size() == 3) {
-            workerthreads.emplace_back(&PicLibrary::rotate, &picLibrary, stoi(tokens[1]), tokens[2]);
+          workerthreads.emplace_back(&PicLibrary::rotate, &picLibrary,
+                                     stoi(tokens[1]), tokens[2]);
         } else {
-            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+          cerr
+              << "incorrect number of arguments. command failed. type \"view\" to see a list of options."
+              << endl;
         }
         break;
       }
       case 8 : { /* flip [H|V] <file_name> */
         if (tokens.size() == 3) {
-            workerthreads.emplace_back(&PicLibrary::flipVH, &picLibrary, tokens[1][0], tokens[2]);
+          workerthreads.emplace_back(&PicLibrary::flipVH, &picLibrary,
+                                     tokens[1][0], tokens[2]);
         } else {
-            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+          cerr
+              << "incorrect number of arguments. command failed. type \"view\" to see a list of options."
+              << endl;
         }
         break;
       }
       case 9 : { /* blur <file_name> */
         if (tokens.size() == 2) {
-            workerthreads.emplace_back(&PicLibrary::blur, &picLibrary, tokens[1]);
+          workerthreads.emplace_back(&PicLibrary::blur, &picLibrary, tokens[1]);
         } else {
-            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+          cerr
+              << "incorrect number of arguments. command failed. type \"view\" to see a list of options."
+              << endl;
         }
         break;
       }
@@ -182,7 +209,8 @@ int main(int argc, char ** argv) {
       }
       default : { /* tokens[0] is not recognised as a supported command */
         if (tokens[0] != "exit") {
-          cerr << "error: " + tokens[0] + " is not a supported command." << endl;
+          cerr << "error: " + tokens[0] + " is not a supported command."
+               << endl;
         }
         break;
       }
@@ -194,18 +222,10 @@ int main(int argc, char ** argv) {
     }
   }
 
-  /*
-   * exit command should stop the command-line interpreter, wait for any outstanding worker threads to
-   * complete and then free all of the resources used by this program before terminating with a successful exit code of 0.
-   *
-   * */
-
   /* joins all threads to ensure all have completed before exiting */
   for (auto &t : workerthreads) {
-      t.join();
+    t.join();
   }
-
-  return 0;
 
   /* CODE USED INSIDE main() IN Main.cpp FOR BLUR EXPERIMENT */
 
@@ -227,32 +247,12 @@ int main(int argc, char ** argv) {
   /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker2");
   picLibrary.sectorblur("sectorblurjoker2", 2);*/
 
-  // ME : SEGMENTATION FAULT
-  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker3");
-  picLibrary.sectorblur("sectorblurjoker3", 3);*/
-
   /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker4");
   picLibrary.sectorblur("sectorblurjoker4", 4);*/
-
-  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker5");
-  picLibrary.sectorblur("sectorblurjoker5", 5);*/
-
-  // ME : SEGMENTATION FAULT
-  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker6");
-  picLibrary.sectorblur("sectorblurjoker6", 6);*/
-
-  // ME : SEGMENTATION FAULT
-  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker7");
-  picLibrary.sectorblur("sectorblurjoker7", 7);*/
 
   /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker8");
   picLibrary.sectorblur("sectorblurjoker8", 8);*/
 
-  // ME : SEGMENTATION FAULT
-  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker9");
-  picLibrary.sectorblur("sectorblurjoker9", 9);*/
-
-  /*picLibrary.loadpicture("images/joker.jpg", "sectorblurjoker10");
-  picLibrary.sectorblur("sectorblurjoker10", 10);*/
+  return 0;
 
 }

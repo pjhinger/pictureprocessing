@@ -18,12 +18,13 @@ class LockablePicNodeList {
 
   /* LockablePicNodeList query methods */
   pair<PicNode*, PicNode*> findposition(string filename);
-  PicNode* findpicnode(string filename); // ME : ALL ACTIVITIES ON NODE IS DONE THROUGH ACCESSING THE POINTER?
+  PicNode* findpicnode(string filename);
 
+  /* LockablePicNodeList update methods */
   void unlockpicnodes(pair<PicNode*,PicNode*> pair);
   bool insertordered(string path, string filename);
   bool remove(string filename);
-  void printallfilenames(); // ME : NEED TO CHECK IF THE FILE YOU'RE ABOUT TO COUT IS DELETED USING deleteflag
+  void printallfilenames();
 
 };
 

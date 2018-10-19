@@ -62,12 +62,12 @@ class Utils{
   Mat copyimage(Mat img);
 
   /**
-    * Returns true if image provided is a .jpg file.
-    * checking to see if ".jpg" is appended to the end of the filename is not reliable
-    * as some files don't have to use this suffix, however, .jpg files store the magic
-    * numbers (given in hexadecimal) ffd8 at the beginning and ffd9 at the end.
-    * NOTE: .jpg files are stored in big endian format so values are converted to
-    * little endian format.
+    * Returns true if image provided is a .jpg file (not an accurate check
+    * but is sufficient for now.
+    * @param path
+    *         a String representing the location of the image as a filesystem
+    *         location.
+    * @return a bool representing if the path to the file represents a .jpg file
     */
   bool isitjpg(string path);
   
