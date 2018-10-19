@@ -56,13 +56,9 @@ int main(int argc, char ** argv) {
   cout << "        The C++ Picture Processing Interpreter        " << endl;
   cout << "------------------------------------------------------" << endl;
 
-  // ME : SHOULD PROBABLY OUTPUT ALL POSSIBLE COMMAND LINE OPTIONS FROM THE SPEC'S BNF
-  // ME : REMEMBER TO FREE ANYTHING THAT NEEDED MEMORY FROM HEAP!
-
   cout << "before initialising library" << endl;
   auto picLibrary = PicLibrary(); // ME : auto OR PicLibrary FOR DECLARING TYPE
   cout << "library initialised" << endl;
-
   /* Pre-loads into picLibrary any images from the image filepaths (if any)
    * that the program is invoked with on the command-line. */
   if (argc > 0) {
@@ -73,10 +69,7 @@ int main(int argc, char ** argv) {
 
   vector<thread> workerthreads;
 
-  // ME : internalstorage[filename] IS NOT A THREAD-SAFE FUNCTION FOR <map> SO USE SOMETHING ELSE IN EACH INSTANCE THIS IS USED
   // ME : MAY NEED TO LOCK cout BECAUSE cpp prompt > IS BEING OUTPUT IS GETTING PRINTED ON THE SAME LINE
-  // ME : MAYBE DELETE THE CONFIRMATION MESSAGES?
-  // ME : COMMENT OUT EXECUTION TIME PRINTS INSIDE ALL BLUR METHODS
   cout << "type \"view\" to see a list of options." << endl;
 
   string line;
@@ -88,7 +81,8 @@ int main(int argc, char ** argv) {
         if (tokens.size() == 1) {
             workerthreads.emplace_back(&PicLibrary::print_picturestore, &picLibrary);
         } else {
-            cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
+            cerr << "incorrect number of arguments. command failed. type "
+                    "\"view\" to see a list of options." << endl;
         }
         // picLibrary.print_picturestore();
         break;
@@ -99,10 +93,10 @@ int main(int argc, char ** argv) {
         // workerthreads.emplace_back(&PicLibrary::loadpicture, &picLibrary, tokens[1], tokens[2]);
         if (tokens.size() == 3) {
           cout << "tokens size correct" << endl;
-          thread t = thread(&PicLibrary::loadpicture, &picLibrary,
-              tokens[1], tokens[2]);
+          thread t = thread(&PicLibrary::loadpicture, &picLibrary, tokens[1], tokens[2]);
           cout << "made a thread" << endl;
           t.join();
+          cout << "joined" << endl;
         } else {
           cerr << "incorrect number of arguments. command failed. type \"view\" to see a list of options." << endl;
         }

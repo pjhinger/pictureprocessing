@@ -19,7 +19,6 @@ class PicNode {
     // ME : atomic_bool deleteflag;
 
     /* pointers to previous/next nodes in the list*/
-    PicNode* prev;
     PicNode* next;
 
     /* fine-grained locking concurrency element*/
@@ -28,7 +27,7 @@ class PicNode {
   public:
 
     /* class constructor, creates a picture node */
-    PicNode(string filename, Picture pic);
+    PicNode(string filename, string path);
 
     /* PicNode query methods */
     string getfilename();

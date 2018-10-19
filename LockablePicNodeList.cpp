@@ -4,8 +4,8 @@ using namespace std;
 
 LockablePicNodeList::LockablePicNodeList() {
   cout << "inside constructor for list" << endl;
-  head = new PicNode("\n", Picture("images/test.jpg"));
-  tail = new PicNode("\n", Picture("images/test.jpg"));
+  head = new PicNode("\n", "images/test.jpg");
+  tail = new PicNode("\n", "images/test.jpg");
   head->setnext(tail);
   cout << "finished constructing list" << endl;
 }
@@ -16,7 +16,9 @@ pair<PicNode*, PicNode*> LockablePicNodeList::findposition(string filename) {
   prev->getlock()->lock();
   PicNode* current = head->getnext();
   current->getlock()->unlock();
-  while (current->getfilename().compare(filename) < 0) {// break when
+  while (current->getfilename().compare(filename) < 0 && current->getnext() != nullptr)
+  {//
+    // break when
     // filename found, iterate until the tail (check tail for name \n
     prev->getlock()->unlock();
     prev = current;
@@ -54,8 +56,9 @@ void LockablePicNodeList::unlockpicnode(PicNode* picnode) {
  * in lexicographical order) - returns true if inserted, false if not
  * inserted meaning PicNode with filename already exists in list */
 bool LockablePicNodeList::insertordered(string path, string filename) {
-  PicNode* newnode = new PicNode(filename, Picture(path));
-  cout << "Visiting here";
+  cout << "inside insertion" << endl;
+  PicNode* newnode = new PicNode(filename, path);
+  cout << "constructed node";
   pair<PicNode*, PicNode*> position = findposition(filename);
   PicNode* prev = position.first;
   prev->getlock()->lock();

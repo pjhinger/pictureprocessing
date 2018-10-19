@@ -2,14 +2,12 @@
 
 using namespace std;
 
-PicNode::PicNode(string filename, Picture pic) {
+PicNode::PicNode(string filename, string path) {
   this->filename = filename;
-  this->pic = pic;
+  this->pic = Picture(path);
   // ME : deleteflag = false;
-  prev = nullptr;
   next = nullptr;
   picnodemutex = new mutex(); /* fine-grained locking */
-  // ME : NEED TO SET PREV AND NEXT STILL
 }
 
 string PicNode::getfilename() {

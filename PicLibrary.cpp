@@ -14,16 +14,16 @@ void PicLibrary::print_picturestore() {
 
 void PicLibrary::loadpicture(string path, string filename) { // ME : COME BACK TO TEST THIS
   if (imgio.isitjpg(path)) {
+    cout << "was jpg," << endl;
     bool result = internalstorage.insertordered(path, filename);
+    cout << "insertion method" << endl;
     if (!result) {
       cerr <<
            "error: could not load image into internal picture storage because " +
            filename + " already exists." << endl;
-    } else {
-      cerr <<
-           "error: could not load image into internal picture storage because the path " +
-           path + " does not point to a .jpg file." << endl;
     }
+  } else {
+    cerr << "error: could not load image into internal picture storage because the path " + path + " does not point to a .jpg file." << endl;
   }
 }
 
