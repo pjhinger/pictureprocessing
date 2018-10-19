@@ -5,6 +5,21 @@
 #include "Utils.hpp"
 #include "LockablePicNodeList.hpp"
 
+/*
+ * PicLibrary's thread-safety implementation:
+ * My internal picture storage has been implemented as a singly-linked list
+ * so that any methods that require iterating through internalstorage
+ * required locking onto the two nodes that are currently being accessed. I
+ * implemented the PicNode class (every node has one mutex) and the
+ * LockablePicNodeList class which is implemented as a chain of PicNode and
+ * uses two dummy nodes for the head and tail with the name "\n" so that they
+ * can never be moved or accessed. Accessing nodes will return a pair of
+ * nodes (can be considered the position) so that addition, removal or editing
+ * of nodes can occur, then unlocking will involve unlocking both of their
+ * mutexes directly.
+ *
+ */
+
 class PicLibrary {
 
   private:
